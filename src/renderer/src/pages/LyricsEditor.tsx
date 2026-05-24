@@ -68,9 +68,9 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     }
   }, [rawLyrics, title, artist, currentSongId, editingSong, setCurrentSongId, onSaved])
 
-  const handleTranslationChange = useCallback((index: number, translation: string) => {
+  const handleLineChange = useCallback((index: number, field: 'original' | 'reading' | 'translation', value: string) => {
     setLines((prev) =>
-      prev.map((l) => (l.line_index === index ? { ...l, translation } : l))
+      prev.map((l) => (l.line_index === index ? { ...l, [field]: value } : l))
     )
     setSaved(false)
   }, [])
@@ -79,7 +79,6 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     if (!title.trim()) return
     setSaving(true)
     try {
-      // 첫 저장 후 currentSongId가 세팅되므로, editingSong.id 보다 우선 사용
       const existingId = currentSongId ?? editingSong?.song.id
       const id = await window.api.songs.save({
         id: existingId,
@@ -97,6 +96,8 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
 
   const handleReset = useCallback(() => {
     setStep('input')
+    setTitle('')
+    setArtist('')
     setRawLyrics('')
     setLines([])
     setSaved(false)
@@ -153,13 +154,23 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
             className="editor-translate-window"
           >
             <div className="editor-translate-header">
-              <div className="editor-translate-hint">
-                <span className="hint-icon">💡</span>
-                각 줄의 번역 칸에 번역을 입력하세요
+              <div className="editor-translate-meta">
+                <input
+                  className="editor-meta-input editor-meta-input--title jp-text"
+                  value={title}
+                  onChange={(e) => { setTitle(e.target.value); setSaved(false) }}
+                  placeholder="노래 제목"
+                />
+                <input
+                  className="editor-meta-input editor-meta-input--artist"
+                  value={artist}
+                  onChange={(e) => { setArtist(e.target.value); setSaved(false) }}
+                  placeholder="아티스트"
+                />
               </div>
               <div className="editor-translate-actions">
                 <PixelButton variant="ghost" size="sm" onClick={handleReset}>
-                  ← 다시 입력
+                  ← 새로 입력
                 </PixelButton>
                 <PixelButton
                   variant="primary"
@@ -176,7 +187,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                 <LyricsRow
                   key={line.line_index}
                   line={line}
-                  onChange={(t) => handleTranslationChange(line.line_index, t)}
+                  onChange={(field, value) => handleLineChange(line.line_index, field, value)}
                 />
               ))}
             </div>

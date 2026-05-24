@@ -99,18 +99,52 @@
   border-bottom: 1.5px solid var(--bg-secondary);
   background: var(--win-bg-alt);
   flex-shrink: 0;
+  gap: 12px;
 }
 
-.editor-translate-hint {
-  font-size: 14px;
-  color: var(--text-muted);
+.editor-translate-meta {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-.hint-icon {
+.editor-meta-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  padding: 2px 4px;
+  font-family: var(--font-kr);
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.editor-meta-input:hover {
+  border-bottom-color: var(--border-mid);
+}
+
+.editor-meta-input:focus {
+  border-bottom-color: var(--accent-lavender);
+}
+
+.editor-meta-input--title {
   font-size: 15px;
+  font-weight: 700;
+  flex: 2;
+}
+
+.editor-meta-input--artist {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.editor-meta-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .editor-translate-actions {

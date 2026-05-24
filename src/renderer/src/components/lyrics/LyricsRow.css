@@ -38,8 +38,28 @@
   color: var(--text-main);
   line-height: 1.6;
   letter-spacing: 0.05em;
-  user-select: text;
-  cursor: text;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  outline: none;
+  width: 100%;
+  padding: 0 2px;
+  transition: border-color 0.15s;
+}
+
+.lyrics-row__original:hover {
+  border-bottom-color: var(--border-mid);
+}
+
+.lyrics-row__original:focus {
+  border-bottom-color: var(--accent-pink);
+  background: rgba(246, 166, 200, 0.06);
+}
+
+.lyrics-row__original::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 14px;
 }
 
 .lyrics-row__reading {
@@ -47,9 +67,28 @@
   color: var(--text-muted);
   line-height: 1.5;
   letter-spacing: 0.08em;
-  padding-left: 1px;
-  user-select: text;
-  cursor: text;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  outline: none;
+  width: 100%;
+  padding: 0 2px;
+  transition: border-color 0.15s;
+}
+
+.lyrics-row__reading:hover {
+  border-bottom-color: var(--border-mid);
+}
+
+.lyrics-row__reading:focus {
+  border-bottom-color: var(--accent-lavender);
+  background: rgba(187, 167, 255, 0.06);
+}
+
+.lyrics-row__reading::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 12px;
 }
 
 .lyrics-row__translation {

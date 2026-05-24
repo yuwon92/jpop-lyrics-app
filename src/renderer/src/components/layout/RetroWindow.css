@@ -1,0 +1,72 @@
+.retro-window {
+  background: var(--win-bg);
+  border: 2px solid var(--border-dark);
+  box-shadow: 3px 3px 0 var(--border-dark);
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 2px solid var(--border-dark);
+  min-height: 32px;
+  user-select: none;
+}
+
+.retro-titlebar.accent-pink    { background: var(--accent-pink); }
+.retro-titlebar.accent-lavender{ background: var(--accent-lavender); }
+.retro-titlebar.accent-blue    { background: var(--accent-blue); }
+
+.retro-titlebar__icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.retro-titlebar__title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.retro-titlebar__controls {
+  display: flex;
+  gap: 3px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.retro-titlebar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid var(--border-dark);
+  background: var(--win-bg);
+  color: var(--text-main);
+  line-height: 1;
+  cursor: default;
+  box-shadow: 1px 1px 0 var(--border-dark);
+  transition: background 0.1s;
+}
+
+.retro-titlebar__btn.btn-close:hover {
+  background: #ffb3c6;
+}
+
+.retro-window__body {
+  flex: 1;
+  overflow: auto;
+}

@@ -1,0 +1,40 @@
+.floating-add-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 20px 12px 16px;
+  background: var(--accent-pink);
+  border: 2px solid var(--border-dark);
+  box-shadow: 3px 3px 0 var(--border-dark);
+  font-family: var(--font-kr);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.12s, transform 0.05s, box-shadow 0.05s;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.floating-add-btn:hover {
+  background: #f491b7;
+}
+
+.floating-add-btn:active {
+  box-shadow: none;
+  transform: translate(3px, 3px);
+}
+
+.floating-add-btn__icon {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.floating-add-btn__label {
+  line-height: 1;
+}

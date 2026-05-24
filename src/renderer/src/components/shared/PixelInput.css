@@ -1,0 +1,34 @@
+.pixel-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pixel-input-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.pixel-input {
+  background: var(--win-bg);
+  border: 2px solid var(--border-dark);
+  padding: 8px 12px;
+  font-size: 16px;
+  font-family: var(--font-kr);
+  color: var(--text-main);
+  outline: none;
+  box-shadow: inset 1px 1px 0 #e0c8d8;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.pixel-input::placeholder {
+  color: var(--text-muted);
+}
+
+.pixel-input:focus {
+  border-color: var(--accent-lavender);
+  box-shadow: inset 1px 1px 0 #e0c8d8, 0 0 0 2px rgba(187, 167, 255, 0.3);
+}

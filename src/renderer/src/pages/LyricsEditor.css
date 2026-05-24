@@ -1,0 +1,125 @@
+.lyrics-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.editor-input-window {
+  flex: 1;
+}
+
+.editor-input-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  height: 100%;
+}
+
+.editor-meta-row {
+  display: flex;
+  gap: 12px;
+}
+
+.editor-textarea-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pixel-input-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.editor-textarea {
+  flex: 1;
+  background: var(--win-bg);
+  border: 2px solid var(--border-dark);
+  padding: 12px 14px;
+  font-size: 16px;
+  font-family: var(--font-jp);
+  color: var(--text-main);
+  outline: none;
+  resize: none;
+  box-shadow: inset 1px 1px 0 #e0c8d8;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+  transition: border-color 0.15s;
+  min-height: 180px;
+}
+
+.editor-textarea::placeholder {
+  color: var(--text-muted);
+  font-family: var(--font-jp);
+  font-size: 15px;
+}
+
+.editor-textarea:focus {
+  border-color: var(--accent-lavender);
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* translate layout */
+.editor-translate-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-translate-window {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-translate-window .retro-window__body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-translate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1.5px solid var(--bg-secondary);
+  background: var(--win-bg-alt);
+  flex-shrink: 0;
+}
+
+.editor-translate-hint {
+  font-size: 14px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hint-icon {
+  font-size: 15px;
+}
+
+.editor-translate-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editor-translate-lines {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}

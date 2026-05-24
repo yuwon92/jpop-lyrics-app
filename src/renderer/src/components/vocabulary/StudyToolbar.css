@@ -1,0 +1,59 @@
+.study-toolbar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.study-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: var(--win-bg);
+  border: 2px solid var(--border-mid);
+  box-shadow: 2px 2px 0 var(--border-mid);
+  font-family: var(--font-kr);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, box-shadow 0.05s, transform 0.05s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.study-btn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-main);
+}
+
+.study-btn:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+.study-btn.active {
+  background: var(--accent-lavender);
+  border-color: var(--border-dark);
+  box-shadow: 2px 2px 0 var(--border-dark);
+  color: var(--text-main);
+}
+
+.study-btn.active:hover {
+  background: #a590f5;
+}
+
+.study-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.study-btn__icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.study-btn__label {
+  line-height: 1;
+}

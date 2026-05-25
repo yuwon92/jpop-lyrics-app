@@ -5,6 +5,7 @@ import PixelButton from '../components/shared/PixelButton'
 import PixelInput from '../components/shared/PixelInput'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
+import ApiKeyModal from '../components/lyrics/ApiKeyModal'
 import { LyricLine, Song } from '../types'
 import './LyricsEditor.css'
 
@@ -17,6 +18,7 @@ interface Props {
 }
 
 type Step = 'input' | 'translate'
+type ReadingMode = 'hiragana' | 'korean'
 
 export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded }: Props): JSX.Element {
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
@@ -28,11 +30,62 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [showWordModal, setShowWordModal] = useState(false)
+  const [readingMode, setReadingMode] = useState<ReadingMode>('hiragana')
+  const [convertingKorean, setConvertingKorean] = useState(false)
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false)
+  const [koreanError, setKoreanError] = useState<string | null>(null)
 
   const handleAddWord = useCallback(async (word: string, meaning: string) => {
     await window.api.vocab.add({ song_id: currentSongId, word, meaning })
     onWordAdded?.()
   }, [currentSongId, onWordAdded])
+
+  const generateKoreanReadings = useCallback(async () => {
+    setConvertingKorean(true)
+    setKoreanError(null)
+    try {
+      const originals = lines.map((l) => l.original)
+      const koReadings = await window.api.anthropic.convertKorean(originals)
+      const updatedLines = lines.map((l, i) => ({ ...l, reading_ko: koReadings[i] ?? '' }))
+      setLines(updatedLines)
+      setReadingMode('korean')
+      const songId = currentSongId
+      if (songId) {
+        await window.api.songs.saveKoreanReadings({ songId, readings: koReadings })
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했어요.'
+      setKoreanError(msg)
+    } finally {
+      setConvertingKorean(false)
+    }
+  }, [lines, currentSongId])
+
+  const handleToggleReading = useCallback(async () => {
+    if (readingMode === 'korean') {
+      setReadingMode('hiragana')
+      return
+    }
+    // reading_ko가 실제 한글 문자를 포함할 때만 캐시 사용
+    const hasValidKorean = (text: string | undefined) => !!text && /[가-힣ᄀ-ᇿ㄰-㆏]/.test(text)
+    if (lines.length > 0 && lines.every((l) => hasValidKorean(l.reading_ko))) {
+      setReadingMode('korean')
+      return
+    }
+    // API 키 확인 후 변환
+    const hasKey = await window.api.anthropic.hasKey()
+    if (!hasKey) {
+      setShowApiKeyModal(true)
+      return
+    }
+    await generateKoreanReadings()
+  }, [readingMode, lines, generateKoreanReadings])
+
+  const handleApiKeySubmit = useCallback(async (key: string) => {
+    await window.api.anthropic.setKey(key)
+    setShowApiKeyModal(false)
+    await generateKoreanReadings()
+  }, [generateKoreanReadings])
 
   const handleGenerate = useCallback(async () => {
     if (!rawLyrics.trim()) return
@@ -68,7 +121,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     }
   }, [rawLyrics, title, artist, currentSongId, editingSong, setCurrentSongId, onSaved])
 
-  const handleLineChange = useCallback((index: number, field: 'original' | 'reading' | 'translation', value: string) => {
+  const handleLineChange = useCallback((index: number, field: 'original' | 'reading' | 'reading_ko' | 'translation', value: string) => {
     setLines((prev) =>
       prev.map((l) => (l.line_index === index ? { ...l, [field]: value } : l))
     )
@@ -101,6 +154,8 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     setRawLyrics('')
     setLines([])
     setSaved(false)
+    setReadingMode('hiragana')
+    setKoreanError(null)
   }, [])
 
   return (
@@ -169,6 +224,15 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                 />
               </div>
               <div className="editor-translate-actions">
+                <PixelButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleToggleReading}
+                  disabled={convertingKorean}
+                  className={readingMode === 'korean' ? 'reading-toggle--korean' : ''}
+                >
+                  {convertingKorean ? '변환 중...' : readingMode === 'hiragana' ? 'ひ → 가' : '가 → ひ'}
+                </PixelButton>
                 <PixelButton variant="ghost" size="sm" onClick={handleReset}>
                   ← 새로 입력
                 </PixelButton>
@@ -182,11 +246,17 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                 </PixelButton>
               </div>
             </div>
+            {koreanError && (
+              <div className="editor-korean-error">
+                ⚠ {koreanError}
+              </div>
+            )}
             <div className="editor-translate-lines">
               {lines.map((line) => (
                 <LyricsRow
                   key={line.line_index}
                   line={line}
+                  readingMode={readingMode}
                   onChange={(field, value) => handleLineChange(line.line_index, field, value)}
                 />
               ))}
@@ -200,6 +270,12 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
               songTitle={title || undefined}
               onAdd={handleAddWord}
               onClose={() => setShowWordModal(false)}
+            />
+          )}
+          {showApiKeyModal && (
+            <ApiKeyModal
+              onSubmit={handleApiKeySubmit}
+              onClose={() => setShowApiKeyModal(false)}
             />
           )}
         </div>

@@ -4,10 +4,13 @@ import './LyricsRow.css'
 
 interface Props {
   line: LyricLine
-  onChange: (field: 'original' | 'reading' | 'translation', value: string) => void
+  readingMode: 'hiragana' | 'korean'
+  onChange: (field: 'original' | 'reading' | 'reading_ko' | 'translation', value: string) => void
 }
 
-export default function LyricsRow({ line, onChange }: Props): JSX.Element {
+export default function LyricsRow({ line, readingMode, onChange }: Props): JSX.Element {
+  const isKorean = readingMode === 'korean'
+
   return (
     <div className="lyrics-row">
       <div className="lyrics-row__index">{line.line_index + 1}</div>
@@ -19,10 +22,10 @@ export default function LyricsRow({ line, onChange }: Props): JSX.Element {
           placeholder="일본어 가사"
         />
         <input
-          className="lyrics-row__reading jp-text"
-          value={line.reading}
-          onChange={(e) => onChange('reading', e.target.value)}
-          placeholder="히라가나"
+          className={`lyrics-row__reading${isKorean ? ' lyrics-row__reading--korean' : ' jp-text'}`}
+          value={isKorean ? (line.reading_ko ?? '') : line.reading}
+          onChange={(e) => onChange(isKorean ? 'reading_ko' : 'reading', e.target.value)}
+          placeholder={isKorean ? '한글 발음' : '히라가나'}
         />
         <textarea
           className="lyrics-row__translation"

@@ -8,7 +8,8 @@ import {
   getVocabBySong,
   addVocab,
   deleteVocab,
-  toggleFavorite
+  toggleFavorite,
+  saveKoreanReadings
 } from './database'
 
 export function registerIpcHandlers(): void {
@@ -16,6 +17,9 @@ export function registerIpcHandlers(): void {
   ipcMain.handle('songs:get-one', (_e, id: number) => getSong(id))
   ipcMain.handle('songs:save', (_e, payload) => saveSong(payload))
   ipcMain.handle('songs:delete', (_e, id: number) => deleteSong(id))
+  ipcMain.handle('songs:save-korean-readings', (_e, payload: { songId: number; readings: string[] }) =>
+    saveKoreanReadings(payload.songId, payload.readings)
+  )
 
   ipcMain.handle('vocab:get-all', () => getAllVocab())
   ipcMain.handle('vocab:get-by-song', (_e, songId: number) => getVocabBySong(songId))

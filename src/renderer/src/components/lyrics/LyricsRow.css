@@ -91,6 +91,16 @@
   font-size: 12px;
 }
 
+.lyrics-row__reading--korean {
+  font-family: var(--font-kr);
+  color: var(--text-main);
+}
+
+.lyrics-row__reading--korean:focus {
+  border-bottom-color: var(--accent-lavender);
+  background: rgba(187, 167, 255, 0.06);
+}
+
 .lyrics-row__translation {
   background: transparent;
   border: none;

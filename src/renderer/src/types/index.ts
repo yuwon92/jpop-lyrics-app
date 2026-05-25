@@ -12,6 +12,7 @@ export interface LyricLine {
   line_index: number
   original: string
   reading: string
+  reading_ko?: string
   translation: string
 }
 

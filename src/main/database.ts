@@ -15,6 +15,7 @@ export interface LyricLine {
   line_index: number
   original: string
   reading: string
+  reading_ko?: string
   translation: string
 }
 
@@ -130,6 +131,7 @@ export function saveSong(payload: {
       line_index: line.line_index,
       original: line.original,
       reading: line.reading,
+      reading_ko: line.reading_ko,
       translation: line.translation
     })
   }
@@ -189,5 +191,18 @@ export function toggleFavorite(id: number): boolean {
 export function deleteVocab(id: number): void {
   const db = getDb()
   db.vocabulary = db.vocabulary.filter((v) => v.id !== id)
+  saveDb()
+}
+
+export function saveKoreanReadings(songId: number, koreanReadings: string[]): void {
+  const db = getDb()
+  const songLines = db.lyric_lines
+    .filter((l) => l.song_id === songId)
+    .sort((a, b) => a.line_index - b.line_index)
+  songLines.forEach((line, i) => {
+    if (i < koreanReadings.length) {
+      line.reading_ko = koreanReadings[i]
+    }
+  })
   saveDb()
 }

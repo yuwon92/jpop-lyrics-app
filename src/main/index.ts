@@ -3,6 +3,7 @@ import { join } from 'path'
 import { getDb } from './database'
 import { registerIpcHandlers } from './ipc-handlers'
 import { setupKuroshiro, registerKuroshiroHandler } from './kuroshiro-handler'
+import { registerAnthropicHandler } from './anthropic-handler'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -43,6 +44,7 @@ app.whenReady().then(async () => {
 
   getDb()
   registerIpcHandlers()
+  registerAnthropicHandler()
   await setupKuroshiro()
   registerKuroshiroHandler()
 

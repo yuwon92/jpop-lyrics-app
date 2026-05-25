@@ -10,6 +10,7 @@
     "package": "npm run build && electron-builder"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.98.0",
     "kuroshiro": "^1.2.0",
     "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "react": "^18.2.0",

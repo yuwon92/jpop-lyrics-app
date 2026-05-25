@@ -1,5 +1,8 @@
 # Release Notes
 
+## v1.1.4
+- 릴리즈 업로드 권한 문제 수정
+
 ## v1.1.3
 - GitHub Actions 릴리즈 워크플로우 오류 수정
 

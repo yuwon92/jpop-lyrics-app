@@ -1,5 +1,11 @@
 # Release Notes
 
+## v1.1.3
+- GitHub Actions 릴리즈 워크플로우 오류 수정
+
+## v1.1.2
+- Windows / Mac 자동 빌드 및 릴리즈 배포 (GitHub Actions) 추가
+
 ## v1.1.1
 - 앱 이름 수정
 - 앱 아이콘 추가

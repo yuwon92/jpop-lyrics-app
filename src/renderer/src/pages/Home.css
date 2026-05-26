@@ -140,8 +140,8 @@
 }
 
 .song-card__delete:hover {
-  color: #c0392b;
-  border-color: #ffb3c6;
+  color: var(--color-danger-dark);
+  border-color: var(--color-danger);
 }
 
 .song-card__footer {

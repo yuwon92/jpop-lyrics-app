@@ -233,11 +233,11 @@
 }
 
 .word-card__fav:hover {
-  color: #e0b800;
+  color: var(--color-gold);
 }
 
 .word-card__fav.favorited {
-  color: #e0b800;
+  color: var(--color-gold);
 }
 
 .word-card__edit {
@@ -270,8 +270,8 @@
 }
 
 .word-card__delete:hover {
-  color: #c0392b;
-  border-color: #ffb3c6;
+  color: var(--color-danger-dark);
+  border-color: var(--color-danger);
 }
 
 .word-card__reading {

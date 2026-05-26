@@ -22,19 +22,24 @@
 /* variants */
 .pixel-btn--primary   { background: var(--accent-pink);     color: var(--text-main); }
 .pixel-btn--secondary { background: var(--accent-lavender); color: var(--text-main); }
-.pixel-btn--danger    { background: #ffb3c6;                 color: #8b0000; }
-.pixel-btn--ghost     { background: var(--win-bg);           color: var(--text-main); }
+.pixel-btn--danger    { background: var(--color-danger);    color: var(--color-danger-dark); }
+.pixel-btn--ghost     { background: var(--win-bg);          color: var(--text-main); }
 
 /* hover */
-.pixel-btn--primary:hover   { background: #f491b7; }
-.pixel-btn--secondary:hover { background: #a993f5; }
-.pixel-btn--danger:hover    { background: #ff8fab; }
+.pixel-btn--primary:hover   { background: var(--accent-pink-hover); }
+.pixel-btn--secondary:hover { background: var(--accent-lavender-hover); }
+.pixel-btn--danger:hover    { background: var(--color-danger-hover); }
 .pixel-btn--ghost:hover     { background: var(--win-bg-alt); }
 
 /* active (press) */
 .pixel-btn:active {
   box-shadow: none;
   transform: translate(2px, 2px);
+}
+
+.pixel-btn:focus-visible {
+  outline: 2px solid var(--border-dark);
+  outline-offset: 2px;
 }
 
 .pixel-btn:disabled {

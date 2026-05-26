@@ -64,7 +64,7 @@
 }
 
 .modal-close-btn:hover {
-  background: #ffb3c6;
+  background: var(--color-danger);
 }
 
 .modal-body {

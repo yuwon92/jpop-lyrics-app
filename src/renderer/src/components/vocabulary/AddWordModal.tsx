@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PixelButton from '../shared/PixelButton'
 import PixelInput from '../shared/PixelInput'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
 import './AddWordModal.css'
 
 interface Props {
@@ -47,32 +48,31 @@ export default function AddWordModal({
     if (isEditing) return
     if (!initialWord || !isJapanese(initialWord)) return
 
+    let cancelled = false
+
     setLoadingReading(true)
     window.api.convertReadingBulk([initialWord])
-      .then(([r]) => setReading((prev) => prev === '' ? (r ?? '') : prev))
+      .then(([r]) => { if (!cancelled) setReading((prev) => prev === '' ? (r ?? '') : prev) })
       .catch(() => {})
-      .finally(() => setLoadingReading(false))
+      .finally(() => { if (!cancelled) setLoadingReading(false) })
 
     window.api.anthropic.hasKey().then((hasKey) => {
-      if (!hasKey) return
+      if (!hasKey || cancelled) return
       setLoadingMeaning(true)
       window.api.anthropic.translateWord(initialWord)
         .then((r) => {
+          if (cancelled) return
           setMeaning((prev) => prev === '' ? r : prev)
           if (!r) setMeaningHint('정확한 단어를 선택해 주세요')
         })
         .catch(() => {})
-        .finally(() => setLoadingMeaning(false))
+        .finally(() => { if (!cancelled) setLoadingMeaning(false) })
     })
+
+    return () => { cancelled = true }
   }, [initialWord, initialReading, initialMeaning])
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+  useEscapeKey(onClose)
 
   const handleSubmit = async () => {
     if (!word.trim() || !meaning.trim()) return

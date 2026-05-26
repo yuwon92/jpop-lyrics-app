@@ -63,7 +63,7 @@
 }
 
 .retro-titlebar__btn.btn-close:hover {
-  background: #ffb3c6;
+  background: var(--color-danger);
 }
 
 .retro-window__body {

@@ -69,7 +69,8 @@ export function registerAnthropicHandler(): void {
       messages: [{ role: 'user', content: lines.join('\n') }]
     })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : ''
+    const first = message.content[0]
+    const text = first?.type === 'text' ? first.text : ''
     const result = text.trim().split('\n').filter((l) => l.trim() !== '')
     return lines.map((_, i) => result[i] ?? '')
   })
@@ -93,6 +94,7 @@ export function registerAnthropicHandler(): void {
       messages: [{ role: 'user', content: word }]
     })
 
-    return (message.content[0].type === 'text' ? message.content[0].text : '').trim()
+    const first = message.content[0]
+    return (first?.type === 'text' ? first.text : '').trim()
   })
 }

@@ -80,17 +80,16 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     setShowFavOnly(false)
   }, [])
 
+  const refetchWords = useCallback(() => {
+    if (viewMode === 'all' || selectedSongId == null) fetchAll()
+    else fetchBySong(selectedSongId)
+  }, [viewMode, selectedSongId, fetchAll, fetchBySong])
+
   const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
     await window.api.vocab.add({ song_id: selectedSongId, word, reading: reading || undefined, meaning })
     onWordAdded?.()
-    if (viewMode === 'all') {
-      fetchAll()
-    } else if (selectedSongId != null) {
-      fetchBySong(selectedSongId)
-    } else {
-      fetchAll()
-    }
-  }, [selectedSongId, viewMode, fetchAll, fetchBySong, onWordAdded])
+    refetchWords()
+  }, [selectedSongId, refetchWords, onWordAdded])
 
   const handleDeleteWord = useCallback(async (id: number) => {
     await deleteWord(id)
@@ -101,14 +100,8 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     if (!editingWord) return
     await window.api.vocab.update({ id: editingWord.id, word, reading: reading || undefined, meaning })
     onWordAdded?.()
-    if (viewMode === 'all') {
-      fetchAll()
-    } else if (selectedSongId != null) {
-      fetchBySong(selectedSongId)
-    } else {
-      fetchAll()
-    }
-  }, [editingWord, viewMode, selectedSongId, fetchAll, fetchBySong, onWordAdded])
+    refetchWords()
+  }, [editingWord, refetchWords, onWordAdded])
 
   const isEmpty = displayWords.length === 0 && !loading
 

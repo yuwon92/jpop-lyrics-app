@@ -34,6 +34,18 @@
 
   --font-kr: 'PfStardust30S', sans-serif;
   --font-jp: 'Noto Sans JP', sans-serif;
+
+  /* 파생 색상 */
+  --color-danger:          #ffb3c6;
+  --color-danger-dark:     #8b0000;
+  --color-danger-hover:    #ff8fab;
+  --color-error:           #e05a7a;
+  --color-error-bg:        rgba(224, 90, 122, 0.08);
+  --color-error-border:    rgba(224, 90, 122, 0.2);
+  --color-gold:            #e0b800;
+  --color-shadow-inset:    #e0c8d8;
+  --accent-pink-hover:     #f491b7;
+  --accent-lavender-hover: #a993f5;
 }
 
 *, *::before, *::after {

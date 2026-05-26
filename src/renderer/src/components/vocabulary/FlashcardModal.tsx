@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { VocabWord } from '../../types'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
 import './FlashcardModal.css'
 
 interface Props {
@@ -31,16 +32,17 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
 
   const flip = useCallback(() => setIsFlipped((f) => !f), [])
 
+  useEscapeKey(onClose)
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') goPrev()
       else if (e.key === 'ArrowRight') goNext()
       else if (e.key === ' ') { e.preventDefault(); flip() }
-      else if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [goPrev, goNext, flip, onClose])
+  }, [goPrev, goNext, flip])
 
   if (total === 0) {
     return (

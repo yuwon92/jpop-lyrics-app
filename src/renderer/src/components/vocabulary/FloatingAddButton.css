@@ -21,7 +21,7 @@
 }
 
 .floating-add-btn:hover {
-  background: #f491b7;
+  background: var(--accent-pink-hover);
 }
 
 .floating-add-btn:active {

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import PixelButton from '../shared/PixelButton'
+import { useEscapeKey } from '../../hooks/useEscapeKey'
 import './ApiKeyModal.css'
 
 interface Props {
@@ -11,13 +12,7 @@ export default function ApiKeyModal({ onSubmit, onClose }: Props): JSX.Element {
   const [key, setKey] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+  useEscapeKey(onClose)
 
   const handleSubmit = async () => {
     if (!key.trim()) return

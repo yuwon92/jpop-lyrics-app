@@ -71,7 +71,7 @@
 }
 
 .flashcard-close-btn:hover {
-  background: #ffb3c6;
+  background: var(--color-danger);
 }
 
 /* 3D flip stage */
@@ -216,8 +216,8 @@
 
 .flashcard-fav-btn.favorited {
   background: #fff3c0;
-  border-color: #e0b800;
-  box-shadow: 2px 2px 0 #e0b800;
+  border-color: var(--color-gold);
+  box-shadow: 2px 2px 0 var(--color-gold);
   color: #9a7500;
 }
 

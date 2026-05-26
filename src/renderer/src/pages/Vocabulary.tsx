@@ -91,6 +91,11 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     }
   }, [selectedSongId, viewMode, fetchAll, fetchBySong, onWordAdded])
 
+  const handleDeleteWord = useCallback(async (id: number) => {
+    await deleteWord(id)
+    onWordAdded?.()
+  }, [deleteWord, onWordAdded])
+
   const isEmpty = displayWords.length === 0 && !loading
 
   return (
@@ -169,7 +174,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
                   <WordCard
                     key={w.id}
                     word={w}
-                    onDelete={deleteWord}
+                    onDelete={handleDeleteWord}
                     onToggleFavorite={toggleFavorite}
                     showSong={viewMode === 'all'}
                   />

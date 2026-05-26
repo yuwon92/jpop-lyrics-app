@@ -76,6 +76,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .editor-translate-window {
@@ -170,4 +171,37 @@
   background: rgba(224, 90, 122, 0.08);
   border-bottom: 1px solid rgba(224, 90, 122, 0.2);
   flex-shrink: 0;
+}
+
+.editor-shortcut-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(420px, calc(100% - 32px));
+  padding: 9px 14px;
+  border: 2px solid var(--border-dark);
+  background: var(--win-bg);
+  color: var(--text-main);
+  box-shadow: 3px 3px 0 var(--border-mid);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.editor-selection-hint {
+  position: fixed;
+  z-index: 25;
+  width: 160px;
+  padding: 6px 9px;
+  border: 1.5px solid var(--border-dark);
+  background: #efeaff;
+  color: var(--text-main);
+  box-shadow: 2px 2px 0 var(--border-mid);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
 }

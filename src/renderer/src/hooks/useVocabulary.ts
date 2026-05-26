@@ -36,9 +36,9 @@ export function useVocabulary() {
   const deleteWord = useCallback(
     async (id: number) => {
       await window.api.vocab.delete(id)
-      await fetchAll()
+      setWords((prev) => prev.filter((w) => w.id !== id))
     },
-    [fetchAll]
+    []
   )
 
   const toggleFavorite = useCallback(

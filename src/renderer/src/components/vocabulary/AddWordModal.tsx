@@ -6,14 +6,19 @@ import './AddWordModal.css'
 interface Props {
   songId: number | null
   songTitle?: string
+  initialWord?: string
   onAdd: (word: string, meaning: string) => Promise<void>
   onClose: () => void
 }
 
-export default function AddWordModal({ songId, songTitle, onAdd, onClose }: Props): JSX.Element {
-  const [word, setWord] = useState('')
+export default function AddWordModal({ songId, songTitle, initialWord = '', onAdd, onClose }: Props): JSX.Element {
+  const [word, setWord] = useState(initialWord)
   const [meaning, setMeaning] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    setWord(initialWord)
+  }, [initialWord])
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

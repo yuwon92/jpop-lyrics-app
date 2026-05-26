@@ -8,7 +8,9 @@ const api = {
     hasKey: (): Promise<boolean> => ipcRenderer.invoke('anthropic:has-key'),
     setKey: (key: string): Promise<void> => ipcRenderer.invoke('anthropic:set-key', key),
     convertKorean: (lines: string[]): Promise<string[]> =>
-      ipcRenderer.invoke('anthropic:convert-korean', lines)
+      ipcRenderer.invoke('anthropic:convert-korean', lines),
+    translateWord: (word: string): Promise<string> =>
+      ipcRenderer.invoke('anthropic:translate-word', word)
   },
 
   songs: {
@@ -28,8 +30,12 @@ const api = {
   vocab: {
     getAll: () => ipcRenderer.invoke('vocab:get-all'),
     getBySong: (songId: number) => ipcRenderer.invoke('vocab:get-by-song', songId),
-    add: (payload: { song_id: number | null; word: string; meaning: string }) =>
+    add: (payload: { song_id: number | null; word: string; reading?: string; meaning: string }) =>
       ipcRenderer.invoke('vocab:add', payload),
+    update: (payload: { id: number; word: string; reading?: string; meaning: string }) =>
+      ipcRenderer.invoke('vocab:update', payload),
+    saveReadings: (entries: { id: number; reading: string }[]) =>
+      ipcRenderer.invoke('vocab:save-readings', entries),
     delete: (id: number) => ipcRenderer.invoke('vocab:delete', id),
     toggleFavorite: (id: number) => ipcRenderer.invoke('vocab:toggle-favorite', id)
   }

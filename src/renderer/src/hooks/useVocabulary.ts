@@ -1,5 +1,27 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, Dispatch, SetStateAction } from 'react'
 import { VocabWord } from '../types'
+
+const JAPANESE_RE = /[ぁ-鿿＀-ﾟ]/
+
+function backfillReadings(data: VocabWord[], setWords: Dispatch<SetStateAction<VocabWord[]>>): void {
+  const noReading = data.filter((w) => !w.reading && JAPANESE_RE.test(w.word))
+  if (noReading.length === 0) return
+  window.api.convertReadingBulk(noReading.map((w) => w.word))
+    .then((readings) => {
+      const entries = noReading
+        .map((w, i) => ({ id: w.id, reading: readings[i] ?? '' }))
+        .filter((e) => e.reading)
+      if (entries.length === 0) return
+      setWords((prev) =>
+        prev.map((w) => {
+          const e = entries.find((en) => en.id === w.id)
+          return e ? { ...w, reading: e.reading } : w
+        })
+      )
+      window.api.vocab.saveReadings(entries).catch(() => {})
+    })
+    .catch(() => {})
+}
 
 export function useVocabulary() {
   const [words, setWords] = useState<VocabWord[]>([])
@@ -10,6 +32,7 @@ export function useVocabulary() {
     try {
       const data = await window.api.vocab.getAll()
       setWords(data)
+      backfillReadings(data, setWords)
     } finally {
       setLoading(false)
     }
@@ -20,6 +43,7 @@ export function useVocabulary() {
     try {
       const data = await window.api.vocab.getBySong(songId)
       setWords(data)
+      backfillReadings(data, setWords)
     } finally {
       setLoading(false)
     }

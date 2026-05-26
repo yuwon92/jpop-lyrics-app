@@ -73,4 +73,26 @@ export function registerAnthropicHandler(): void {
     const result = text.trim().split('\n').filter((l) => l.trim() !== '')
     return lines.map((_, i) => result[i] ?? '')
   })
+
+  ipcMain.handle('anthropic:translate-word', async (_e, word: string) => {
+    const apiKey = getStoredApiKey()
+    if (!apiKey) throw new Error('NO_API_KEY')
+
+    const client = new Anthropic({ apiKey })
+
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 256,
+      system: [
+        '일본어 단어나 어구를 한국어로 번역해.',
+        '규칙:',
+        '- 의미 있는 일본어 단어/어구라면: 한국어 뜻만 출력 (예: "새벽, 동이 틈")',
+        '- 조사 단독(に, を, が 등), 숫자만, 의미 없는 문자 조합이라면: 빈 문자열만 반환',
+        '- 설명·예문·품사 없이 한 줄로만 출력'
+      ].join('\n'),
+      messages: [{ role: 'user', content: word }]
+    })
+
+    return (message.content[0].type === 'text' ? message.content[0].text : '').trim()
+  })
 }

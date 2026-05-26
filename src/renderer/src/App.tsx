@@ -61,8 +61,8 @@ export default function App(): JSX.Element {
   )
 
   const handleAddWord = useCallback(
-    async (word: string, meaning: string) => {
-      await window.api.vocab.add({ song_id: currentSongId, word, meaning })
+    async (word: string, reading: string, meaning: string) => {
+      await window.api.vocab.add({ song_id: currentSongId, word, reading: reading || undefined, meaning })
       fetchAll()
     },
     [currentSongId, fetchAll]

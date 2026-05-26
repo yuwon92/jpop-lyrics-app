@@ -23,6 +23,7 @@ export interface VocabWord {
   id: number
   song_id: number | null
   word: string
+  reading?: string
   meaning: string
   created_at: string
   favorited: boolean
@@ -170,13 +171,46 @@ export function getVocabBySong(songId: number) {
 export function addVocab(payload: {
   song_id: number | null
   word: string
+  reading?: string
   meaning: string
 }): number {
   const db = getDb()
   const id = nextId('vocabulary')
-  db.vocabulary.push({ id, song_id: payload.song_id, word: payload.word, meaning: payload.meaning, created_at: now(), favorited: false })
+  db.vocabulary.push({
+    id,
+    song_id: payload.song_id,
+    word: payload.word,
+    reading: payload.reading || undefined,
+    meaning: payload.meaning,
+    created_at: now(),
+    favorited: false
+  })
   saveDb()
   return id
+}
+
+export function saveWordReadings(entries: { id: number; reading: string }[]): void {
+  const db = getDb()
+  for (const { id, reading } of entries) {
+    const word = db.vocabulary.find((v) => v.id === id)
+    if (word) word.reading = reading || undefined
+  }
+  saveDb()
+}
+
+export function updateVocab(payload: {
+  id: number
+  word: string
+  reading?: string
+  meaning: string
+}): void {
+  const db = getDb()
+  const word = db.vocabulary.find((v) => v.id === payload.id)
+  if (!word) return
+  word.word = payload.word
+  word.reading = payload.reading || undefined
+  word.meaning = payload.meaning
+  saveDb()
 }
 
 export function toggleFavorite(id: number): boolean {

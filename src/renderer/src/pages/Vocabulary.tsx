@@ -34,6 +34,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
   const [shuffledWords, setShuffledWords] = useState<VocabWord[]>([])
   const [showFlashcard, setShowFlashcard] = useState(false)
   const [showWordModal, setShowWordModal] = useState(false)
+  const [editingWord, setEditingWord] = useState<VocabWord | null>(null)
 
   // Fetch words based on view mode + selected song
   useEffect(() => {
@@ -79,8 +80,8 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     setShowFavOnly(false)
   }, [])
 
-  const handleAddWord = useCallback(async (word: string, meaning: string) => {
-    await window.api.vocab.add({ song_id: selectedSongId, word, meaning })
+  const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
+    await window.api.vocab.add({ song_id: selectedSongId, word, reading: reading || undefined, meaning })
     onWordAdded?.()
     if (viewMode === 'all') {
       fetchAll()
@@ -95,6 +96,19 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     await deleteWord(id)
     onWordAdded?.()
   }, [deleteWord, onWordAdded])
+
+  const handleUpdateWord = useCallback(async (word: string, reading: string, meaning: string) => {
+    if (!editingWord) return
+    await window.api.vocab.update({ id: editingWord.id, word, reading: reading || undefined, meaning })
+    onWordAdded?.()
+    if (viewMode === 'all') {
+      fetchAll()
+    } else if (selectedSongId != null) {
+      fetchBySong(selectedSongId)
+    } else {
+      fetchAll()
+    }
+  }, [editingWord, viewMode, selectedSongId, fetchAll, fetchBySong, onWordAdded])
 
   const isEmpty = displayWords.length === 0 && !loading
 
@@ -175,6 +189,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
                     key={w.id}
                     word={w}
                     onDelete={handleDeleteWord}
+                    onEdit={setEditingWord}
                     onToggleFavorite={toggleFavorite}
                     showSong={viewMode === 'all'}
                   />
@@ -194,6 +209,16 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
           onClose={() => setShowWordModal(false)}
         />
       )}
+      {editingWord && (
+        <AddWordModal
+          songId={editingWord.song_id}
+          initialWord={editingWord.word}
+          initialReading={editingWord.reading ?? ''}
+          initialMeaning={editingWord.meaning}
+          onAdd={handleUpdateWord}
+          onClose={() => setEditingWord(null)}
+        />
+      )}
 
       {showFlashcard && (
         <FlashcardModal
@@ -209,11 +234,13 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
 function WordCard({
   word,
   onDelete,
+  onEdit,
   onToggleFavorite,
   showSong
 }: {
   word: VocabWord
   onDelete: (id: number) => void
+  onEdit: (word: VocabWord) => void
   onToggleFavorite: (id: number) => void
   showSong: boolean
 }): JSX.Element {
@@ -230,6 +257,13 @@ function WordCard({
             {word.favorited ? '★' : '☆'}
           </button>
           <button
+            className="word-card__edit"
+            onClick={() => onEdit(word)}
+            title="수정"
+          >
+            ✎
+          </button>
+          <button
             className="word-card__delete"
             onClick={() => onDelete(word.id)}
             title="삭제"
@@ -238,6 +272,9 @@ function WordCard({
           </button>
         </div>
       </div>
+      {word.reading && word.reading !== word.word && (
+        <div className="word-card__reading jp-text">{word.reading}</div>
+      )}
       <div className="word-card__meaning">{word.meaning}</div>
       {showSong && word.song_title && (
         <div className="word-card__song">

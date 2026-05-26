@@ -21,6 +21,7 @@ export interface VocabWord {
   song_id: number | null
   song_title?: string
   word: string
+  reading?: string
   meaning: string
   created_at: string
   favorited: boolean

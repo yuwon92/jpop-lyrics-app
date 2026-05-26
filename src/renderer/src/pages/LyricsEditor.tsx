@@ -91,8 +91,8 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     setSaved(false)
   }, [])
 
-  const handleAddWord = useCallback(async (word: string, meaning: string) => {
-    await window.api.vocab.add({ song_id: currentSongId, word, meaning })
+  const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
+    await window.api.vocab.add({ song_id: currentSongId, word, reading: reading || undefined, meaning })
     onWordAdded?.()
   }, [currentSongId, onWordAdded])
 

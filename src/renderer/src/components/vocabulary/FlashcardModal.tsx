@@ -75,6 +75,9 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
             </div>
             <div className="flashcard-back">
               <div className="flashcard-word-sm jp-text">{current.word}</div>
+              {current.reading && current.reading !== current.word && (
+                <div className="flashcard-reading jp-text">{current.reading}</div>
+              )}
               <div className="flashcard-meaning">{current.meaning}</div>
             </div>
           </div>

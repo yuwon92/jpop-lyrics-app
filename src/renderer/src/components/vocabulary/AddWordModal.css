@@ -13,7 +13,7 @@
   background: var(--win-bg);
   border: 2px solid var(--border-dark);
   box-shadow: 4px 4px 0 var(--border-dark);
-  width: 340px;
+  width: 360px;
   max-width: 90vw;
   overflow: hidden;
   animation: modal-pop 0.15s ease-out;
@@ -84,6 +84,27 @@
   color: var(--text-muted);
   font-weight: 700;
   align-self: flex-start;
+}
+
+.modal-meaning-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-meaning-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-left: 2px;
+  opacity: 0.8;
+}
+
+.modal-save-error {
+  font-size: 12px;
+  color: #e05a7a;
+  background: rgba(224, 90, 122, 0.08);
+  border: 1px solid rgba(224, 90, 122, 0.2);
+  padding: 6px 10px;
 }
 
 .modal-actions {

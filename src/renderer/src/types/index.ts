@@ -27,4 +27,4 @@ export interface VocabWord {
   favorited: boolean
 }
 
-export type Page = 'home' | 'editor' | 'vocabulary'
+export type Page = 'home' | 'editor' | 'vocabulary' | 'settings'

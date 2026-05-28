@@ -32,13 +32,13 @@ export default function MenuBar({ currentPage, onNavigate }: Props): JSX.Element
           </button>
         ))}
       </nav>
-      <div className="menubar__deco">
-        <span>♡</span>
-        <span>·</span>
-        <span>☆</span>
-        <span>·</span>
-        <span>♡</span>
-      </div>
+      <button
+        className={`menubar__settings-btn ${currentPage === 'settings' ? 'active' : ''}`}
+        onClick={() => onNavigate('settings')}
+        title="설정"
+      >
+        ⚙
+      </button>
     </header>
   )
 }

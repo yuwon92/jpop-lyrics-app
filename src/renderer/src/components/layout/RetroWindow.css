@@ -16,6 +16,7 @@
   border-bottom: 2px solid var(--border-dark);
   min-height: 32px;
   user-select: none;
+  color: var(--text-on-accent);
 }
 
 .retro-titlebar.accent-pink    { background: var(--accent-pink); }
@@ -31,7 +32,7 @@
   flex: 1;
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-on-accent);
   letter-spacing: 0.02em;
   white-space: nowrap;
   overflow: hidden;

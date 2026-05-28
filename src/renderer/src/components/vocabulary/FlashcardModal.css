@@ -33,6 +33,7 @@
   background: var(--accent-pink);
   border-bottom: 2px solid var(--border-dark);
   user-select: none;
+  color: var(--text-on-accent);
 }
 
 .flashcard-titlebar__icon {
@@ -42,14 +43,15 @@
 .flashcard-titlebar__title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-on-accent);
   flex: 1;
 }
 
 .flashcard-titlebar__count {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-on-accent);
+  opacity: 0.7;
   margin-right: 4px;
 }
 
@@ -223,7 +225,7 @@
 
 .flashcard-fav-btn:hover {
   background: var(--accent-pink);
-  color: var(--text-main);
+  color: var(--text-on-accent);
 }
 
 .flashcard-empty {

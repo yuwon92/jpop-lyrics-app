@@ -61,7 +61,7 @@
 }
 
 .vocab-toggle-btn.active {
-  color: var(--text-main);
+  color: var(--text-on-accent);
   background: var(--accent-lavender);
   border-color: var(--border-dark);
 }
@@ -119,7 +119,7 @@
 
 .vocab-song-item.active {
   background: var(--accent-lavender);
-  color: var(--text-main);
+  color: var(--text-on-accent);
   border-bottom-color: var(--border-mid);
 }
 
@@ -142,7 +142,7 @@
 
 .vocab-song-item.active .vocab-song-item__count {
   background: rgba(255,255,255,0.4);
-  color: var(--text-main);
+  color: var(--text-on-accent);
 }
 
 /* body */

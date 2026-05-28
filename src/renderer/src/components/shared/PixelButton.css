@@ -20,8 +20,8 @@
 .pixel-btn--lg { padding: 10px 24px; font-size: 18px; }
 
 /* variants */
-.pixel-btn--primary   { background: var(--accent-pink);     color: var(--text-main); }
-.pixel-btn--secondary { background: var(--accent-lavender); color: var(--text-main); }
+.pixel-btn--primary   { background: var(--accent-pink);     color: var(--text-on-accent); }
+.pixel-btn--secondary { background: var(--accent-lavender); color: var(--text-on-accent); }
 .pixel-btn--danger    { background: var(--color-danger);    color: var(--color-danger-dark); }
 .pixel-btn--ghost     { background: var(--win-bg);          color: var(--text-main); }
 

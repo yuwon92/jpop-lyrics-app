@@ -32,6 +32,7 @@
   background: var(--accent-lavender);
   border-bottom: 2px solid var(--border-dark);
   user-select: none;
+  color: var(--text-on-accent);
 }
 
 .modal-titlebar__icon {
@@ -42,7 +43,7 @@
   flex: 1;
   font-size: 15px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-on-accent);
 }
 
 .modal-close-btn {

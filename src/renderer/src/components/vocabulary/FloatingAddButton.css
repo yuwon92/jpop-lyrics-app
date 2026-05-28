@@ -13,7 +13,7 @@
   font-family: var(--font-kr);
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-on-accent);
   cursor: pointer;
   transition: background 0.12s, transform 0.05s, box-shadow 0.05s;
   letter-spacing: 0.02em;

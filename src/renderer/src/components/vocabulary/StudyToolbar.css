@@ -37,7 +37,7 @@
   background: var(--accent-lavender);
   border-color: var(--border-dark);
   box-shadow: 2px 2px 0 var(--border-dark);
-  color: var(--text-main);
+  color: var(--text-on-accent);
 }
 
 .study-btn.active:hover {

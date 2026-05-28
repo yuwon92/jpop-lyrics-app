@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import MenuBar from './components/layout/MenuBar'
+import { useTheme } from './hooks/useTheme'
 import Home from './pages/Home'
 import LyricsEditor from './pages/LyricsEditor'
 import Vocabulary from './pages/Vocabulary'
+import Settings from './pages/Settings'
 import FloatingAddButton from './components/vocabulary/FloatingAddButton'
 import AddWordModal from './components/vocabulary/AddWordModal'
 import { Page, Song, LyricLine } from './types'
@@ -15,6 +17,7 @@ export default function App(): JSX.Element {
   const [currentSongId, setCurrentSongId] = useState<number | null>(null)
   const [editingSong, setEditingSong] = useState<{ song: Song; lines: LyricLine[] } | null>(null)
 
+  const { theme, setTheme } = useTheme()
   const { songs, loading, fetchAll, deleteSong } = useSongs()
 
   useEffect(() => {
@@ -93,6 +96,7 @@ export default function App(): JSX.Element {
           />
         )}
         {page === 'vocabulary' && <Vocabulary songs={songs} onWordAdded={fetchAll} />}
+        {page === 'settings' && <Settings theme={theme} onChangeTheme={setTheme} />}
       </main>
 
       {page === 'home' && (

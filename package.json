@@ -32,7 +32,7 @@
   },
   "build": {
     "appId": "com.jpop.lyrics",
-    "productName": "J-Pop 가사 번역",
+    "productName": "J-Pop Vocab.",
     "directories": {
       "output": "dist"
     },

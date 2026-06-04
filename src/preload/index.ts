@@ -10,7 +10,9 @@ const api = {
     convertKorean: (lines: string[]): Promise<string[]> =>
       ipcRenderer.invoke('anthropic:convert-korean', lines),
     translateWord: (word: string): Promise<string> =>
-      ipcRenderer.invoke('anthropic:translate-word', word)
+      ipcRenderer.invoke('anthropic:translate-word', word),
+    analyzeLine: (original: string, mode: 'translation' | 'grammar'): Promise<unknown> =>
+      ipcRenderer.invoke('anthropic:analyze-line', original, mode)
   },
 
   songs: {

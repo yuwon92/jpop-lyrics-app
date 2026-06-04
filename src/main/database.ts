@@ -33,6 +33,7 @@ interface DB {
   songs: Song[]
   lyric_lines: LyricLine[]
   vocabulary: VocabWord[]
+  analysisCache: Record<string, unknown>
   _nextId: { songs: number; lyric_lines: number; vocabulary: number }
 }
 
@@ -66,6 +67,7 @@ function emptyDb(): DB {
     songs: [],
     lyric_lines: [],
     vocabulary: [],
+    analysisCache: {},
     _nextId: { songs: 1, lyric_lines: 1, vocabulary: 1 }
   }
 }
@@ -225,6 +227,19 @@ export function toggleFavorite(id: number): boolean {
 export function deleteVocab(id: number): void {
   const db = getDb()
   db.vocabulary = db.vocabulary.filter((v) => v.id !== id)
+  saveDb()
+}
+
+export function getAnalysisCache(key: string): unknown | null {
+  const db = getDb()
+  if (!db.analysisCache) db.analysisCache = {}
+  return db.analysisCache[key] ?? null
+}
+
+export function setAnalysisCache(key: string, value: unknown): void {
+  const db = getDb()
+  if (!db.analysisCache) db.analysisCache = {}
+  db.analysisCache[key] = value
   saveDb()
 }
 

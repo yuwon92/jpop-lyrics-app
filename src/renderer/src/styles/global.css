@@ -1,3 +1,12 @@
+/* DotGothic16 — 일본어 범위만 적용, size-adjust로 한국어 폰트와 크기 맞춤 */
+@font-face {
+  font-family: 'DotGothic16';
+  src: url('https://fonts.gstatic.com/s/dotgothic16/v21/v6-QGYjBJFKgyw5nSoDAGE7L.ttf') format('truetype');
+  unicode-range: U+3000-9FFF, U+F900-FAFF, U+FF65-FF9F, U+31F0-31FF;
+  size-adjust: 80%;
+  font-display: swap;
+}
+
 /* PF Stardust 3.0 */
 @font-face {
   font-family: 'PfStardust30S';
@@ -34,6 +43,7 @@
 
   --font-kr: 'PfStardust30S', sans-serif;
   --font-jp: 'Noto Sans JP', sans-serif;
+  --font-pixel-cjk: 'DotGothic16', 'PfStardust30S', sans-serif;
 
   --text-on-accent: #3B3450;
   --dot-color: #c9b0e0;

@@ -28,3 +28,22 @@ export interface VocabWord {
 }
 
 export type Page = 'home' | 'editor' | 'vocabulary' | 'settings'
+
+export interface TranslateResult {
+  line: string
+  literal: string
+  free: string
+}
+
+export interface GrammarWord {
+  word: string
+  reading: string
+  meaning: string
+  pos: string
+}
+
+export interface GrammarResult {
+  line: string
+  words: GrammarWord[]
+  grammar: { point: string; explanation: string }[]
+}

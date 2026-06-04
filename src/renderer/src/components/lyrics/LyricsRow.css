@@ -1,13 +1,19 @@
 .lyrics-row {
   display: flex;
-  gap: 10px;
-  padding: 10px 12px;
+  flex-direction: column;
   border-bottom: 1.5px solid var(--bg-secondary);
   transition: background 0.12s;
 }
 
 .lyrics-row:hover {
   background: rgba(246, 166, 200, 0.08);
+}
+
+.lyrics-row__top {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  align-items: flex-start;
 }
 
 .lyrics-row__index {
@@ -126,4 +132,216 @@
 .lyrics-row__translation:focus {
   border-bottom-color: var(--accent-pink);
   background: rgba(246, 166, 200, 0.06);
+}
+
+/* ── 분석 버튼 ── */
+.lyrics-row__analyze-btn {
+  flex-shrink: 0;
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: 1.5px solid var(--border-mid);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-kr);
+  transition: border-color 0.1s, background 0.1s, color 0.1s, opacity 0.1s;
+  opacity: 0;
+}
+
+.lyrics-row:hover .lyrics-row__analyze-btn {
+  opacity: 1;
+}
+
+.lyrics-row__analyze-btn:hover {
+  border-color: var(--border-dark);
+  background: var(--win-bg-alt);
+  color: var(--text-main);
+}
+
+.lyrics-row__analyze-btn.active {
+  border-color: var(--accent-lavender);
+  background: var(--accent-lavender);
+  color: var(--text-on-accent);
+  opacity: 1;
+}
+
+/* ── 분석 패널 ── */
+.lyrics-row__panel {
+  background: var(--win-bg-alt);
+  border-top: 1px solid var(--border-mid);
+  padding: 12px 14px 14px 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--font-pixel-cjk);
+}
+
+.lyrics-row__panel-loading {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.lyrics-row__panel-error {
+  font-size: 13px;
+  color: var(--color-error);
+  padding: 4px 0;
+}
+
+.lyrics-row__panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lyrics-row__panel-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* 번역 */
+.analysis-translate {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.analysis-translate__row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.analysis-translate__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 28px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.analysis-translate__text {
+  font-size: 16px;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* 단어 카드 */
+.analysis-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.analysis-word-card {
+  background: var(--win-bg);
+  border: 1.5px solid var(--border-mid);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 110px;
+}
+
+.analysis-word-card__word {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.analysis-word-card__reading {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.analysis-word-card__meaning {
+  font-size: 14px;
+  color: var(--text-main);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.analysis-word-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.analysis-word-card__pos {
+  font-size: 11px;
+  color: var(--accent-lavender);
+  font-weight: 700;
+}
+
+.analysis-word-card__save {
+  background: transparent;
+  border: 1.5px solid var(--border-mid);
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-family: var(--font-kr);
+  transition: border-color 0.1s, background 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+
+.analysis-word-card__save:hover:not(:disabled) {
+  border-color: var(--border-dark);
+  background: var(--accent-lavender);
+  color: var(--text-on-accent);
+}
+
+.analysis-word-card__save.saved {
+  border-color: var(--accent-lavender);
+  color: var(--accent-lavender);
+  cursor: default;
+}
+
+/* 문법 카드 */
+.analysis-grammar {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.analysis-grammar-card {
+  background: var(--win-bg);
+  border: 1.5px solid var(--border-mid);
+  border-left: 3px solid var(--accent-lavender);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.analysis-grammar-card__point {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.analysis-grammar-card__explanation {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
 }

@@ -407,6 +407,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                   line={line}
                   readingMode={readingMode}
                   onChange={(field, value) => handleLineChange(line.line_index, field, value)}
+                  onWordAdded={onWordAdded}
                 />
               ))}
             </div>

@@ -27,7 +27,18 @@ export interface VocabWord {
   favorited: boolean
 }
 
-export type Page = 'home' | 'editor' | 'vocabulary' | 'settings'
+export type Page = 'home' | 'editor' | 'vocabulary' | 'grammar-notes' | 'settings'
+
+export interface GrammarNote {
+  id: number
+  song_id: number | null
+  song_title?: string
+  point: string
+  explanation: string
+  example: string
+  created_at: string
+  favorited: boolean
+}
 
 export interface TranslateResult {
   line: string

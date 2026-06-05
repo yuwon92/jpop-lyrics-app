@@ -4,6 +4,7 @@ import { useTheme } from './hooks/useTheme'
 import Home from './pages/Home'
 import LyricsEditor from './pages/LyricsEditor'
 import Vocabulary from './pages/Vocabulary'
+import GrammarNotes from './pages/GrammarNotes'
 import Settings from './pages/Settings'
 import FloatingAddButton from './components/vocabulary/FloatingAddButton'
 import AddWordModal from './components/vocabulary/AddWordModal'
@@ -96,6 +97,7 @@ export default function App(): JSX.Element {
           />
         )}
         {page === 'vocabulary' && <Vocabulary songs={songs} onWordAdded={fetchAll} />}
+        {page === 'grammar-notes' && <GrammarNotes songs={songs} />}
         {page === 'settings' && <Settings theme={theme} onChangeTheme={setTheme} />}
       </main>
 

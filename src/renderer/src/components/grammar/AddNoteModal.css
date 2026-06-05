@@ -1,0 +1,44 @@
+/* AddNoteModal reuses base modal classes from AddWordModal.css via shared class names */
+/* This file only adds overrides specific to the note modal */
+
+.note-modal-window {
+  width: 440px;
+}
+
+.note-modal__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.note-modal__explanation-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.note-modal__textarea {
+  background: var(--win-bg);
+  border: 2px solid var(--border-dark);
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: var(--font-pixel-cjk);
+  color: var(--text-main);
+  outline: none;
+  width: 100%;
+  resize: none;
+  line-height: 1.7;
+  box-shadow: inset 1px 1px 0 var(--color-shadow-inset);
+  transition: border-color 0.15s;
+}
+
+.note-modal__textarea:focus {
+  border-color: var(--accent-lavender);
+}
+
+.note-modal__textarea::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 13px;
+}

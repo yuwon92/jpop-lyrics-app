@@ -5,6 +5,24 @@ declare global {
   interface Window {
     api: {
       convertReadingBulk: (lines: string[]) => Promise<string[]>
+      grammarNotes: {
+        getAll: () => Promise<import('../types').GrammarNote[]>
+        getBySong: (songId: number) => Promise<import('../types').GrammarNote[]>
+        add: (payload: {
+          song_id: number | null
+          point: string
+          explanation: string
+          example: string
+        }) => Promise<number>
+        update: (payload: {
+          id: number
+          point: string
+          explanation: string
+          example: string
+        }) => Promise<void>
+        delete: (id: number) => Promise<void>
+        toggleFavorite: (id: number) => Promise<boolean>
+      }
       anthropic: {
         hasKey: () => Promise<boolean>
         setKey: (key: string) => Promise<void>

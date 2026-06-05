@@ -15,6 +15,7 @@ interface Props {
   currentSongId: number | null
   setCurrentSongId: (id: number | null) => void
   onWordAdded?: () => void
+  onNoteAdded?: () => void
 }
 
 type Step = 'input' | 'translate'
@@ -67,7 +68,7 @@ function getSelectionHintPosition(): SelectionHint {
   return { x, y: clamp(y, 8, window.innerHeight - 40) }
 }
 
-export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded }: Props): JSX.Element {
+export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded }: Props): JSX.Element {
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
   const [title, setTitle] = useState(editingSong?.song.title ?? '')
   const [artist, setArtist] = useState(editingSong?.song.artist ?? '')
@@ -408,6 +409,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                   readingMode={readingMode}
                   onChange={(field, value) => handleLineChange(line.line_index, field, value)}
                   onWordAdded={onWordAdded}
+                  onNoteAdded={onNoteAdded}
                 />
               ))}
             </div>

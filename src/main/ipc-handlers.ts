@@ -11,7 +11,13 @@ import {
   saveWordReadings,
   deleteVocab,
   toggleFavorite,
-  saveKoreanReadings
+  saveKoreanReadings,
+  getAllGrammarNotes,
+  getGrammarNotesBySong,
+  addGrammarNote,
+  updateGrammarNote,
+  deleteGrammarNote,
+  toggleGrammarNoteFavorite
 } from './database'
 
 export function registerIpcHandlers(): void {
@@ -32,4 +38,11 @@ export function registerIpcHandlers(): void {
   )
   ipcMain.handle('vocab:delete', (_e, id: number) => deleteVocab(id))
   ipcMain.handle('vocab:toggle-favorite', (_e, id: number) => toggleFavorite(id))
+
+  ipcMain.handle('grammar-notes:get-all', () => getAllGrammarNotes())
+  ipcMain.handle('grammar-notes:get-by-song', (_e, songId: number) => getGrammarNotesBySong(songId))
+  ipcMain.handle('grammar-notes:add', (_e, payload) => addGrammarNote(payload))
+  ipcMain.handle('grammar-notes:update', (_e, payload) => updateGrammarNote(payload))
+  ipcMain.handle('grammar-notes:delete', (_e, id: number) => deleteGrammarNote(id))
+  ipcMain.handle('grammar-notes:toggle-favorite', (_e, id: number) => toggleGrammarNoteFavorite(id))
 }

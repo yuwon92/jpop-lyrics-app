@@ -29,12 +29,23 @@ export interface VocabWord {
   favorited: boolean
 }
 
+export interface GrammarNoteRecord {
+  id: number
+  song_id: number | null
+  point: string
+  explanation: string
+  example: string
+  created_at: string
+  favorited: boolean
+}
+
 interface DB {
   songs: Song[]
   lyric_lines: LyricLine[]
   vocabulary: VocabWord[]
+  grammar_notes: GrammarNoteRecord[]
   analysisCache: Record<string, unknown>
-  _nextId: { songs: number; lyric_lines: number; vocabulary: number }
+  _nextId: { songs: number; lyric_lines: number; vocabulary: number; grammar_notes: number }
 }
 
 let dbPath: string
@@ -67,8 +78,9 @@ function emptyDb(): DB {
     songs: [],
     lyric_lines: [],
     vocabulary: [],
+    grammar_notes: [],
     analysisCache: {},
-    _nextId: { songs: 1, lyric_lines: 1, vocabulary: 1 }
+    _nextId: { songs: 1, lyric_lines: 1, vocabulary: 1, grammar_notes: 1 }
   }
 }
 
@@ -241,6 +253,81 @@ export function setAnalysisCache(key: string, value: unknown): void {
   if (!db.analysisCache) db.analysisCache = {}
   db.analysisCache[key] = value
   saveDb()
+}
+
+// Grammar Notes
+export function getAllGrammarNotes() {
+  const db = getDb()
+  if (!db.grammar_notes) db.grammar_notes = []
+  return db.grammar_notes
+    .map((n) => ({ ...n, song_title: db.songs.find((s) => s.id === n.song_id)?.title ?? null }))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+}
+
+export function getGrammarNotesBySong(songId: number) {
+  const db = getDb()
+  if (!db.grammar_notes) db.grammar_notes = []
+  const song = db.songs.find((s) => s.id === songId)
+  return db.grammar_notes
+    .filter((n) => n.song_id === songId)
+    .map((n) => ({ ...n, song_title: song?.title ?? null }))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+}
+
+export function addGrammarNote(payload: {
+  song_id: number | null
+  point: string
+  explanation: string
+  example: string
+}): number {
+  const db = getDb()
+  if (!db.grammar_notes) db.grammar_notes = []
+  if (!db._nextId.grammar_notes) db._nextId.grammar_notes = 1
+  const id = nextId('grammar_notes')
+  db.grammar_notes.push({
+    id,
+    song_id: payload.song_id,
+    point: payload.point,
+    explanation: payload.explanation,
+    example: payload.example,
+    created_at: now(),
+    favorited: false
+  })
+  saveDb()
+  return id
+}
+
+export function updateGrammarNote(payload: {
+  id: number
+  point: string
+  explanation: string
+  example: string
+}): void {
+  const db = getDb()
+  if (!db.grammar_notes) return
+  const note = db.grammar_notes.find((n) => n.id === payload.id)
+  if (!note) return
+  note.point = payload.point
+  note.explanation = payload.explanation
+  note.example = payload.example
+  saveDb()
+}
+
+export function deleteGrammarNote(id: number): void {
+  const db = getDb()
+  if (!db.grammar_notes) return
+  db.grammar_notes = db.grammar_notes.filter((n) => n.id !== id)
+  saveDb()
+}
+
+export function toggleGrammarNoteFavorite(id: number): boolean {
+  const db = getDb()
+  if (!db.grammar_notes) return false
+  const note = db.grammar_notes.find((n) => n.id === id)
+  if (!note) return false
+  note.favorited = !note.favorited
+  saveDb()
+  return note.favorited
 }
 
 export function saveKoreanReadings(songId: number, koreanReadings: string[]): void {

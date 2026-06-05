@@ -8,9 +8,10 @@ interface Props {
 }
 
 const tabs: { id: Page; label: string; icon: string }[] = [
-  { id: 'home',       label: '노래 목록', icon: '♫' },
-  { id: 'editor',     label: '가사 번역', icon: '✏' },
-  { id: 'vocabulary', label: '단어장',   icon: '★' }
+  { id: 'home',          label: '노래 목록', icon: '♫' },
+  { id: 'editor',        label: '가사 번역', icon: '✏' },
+  { id: 'vocabulary',    label: '단어장',    icon: '★' },
+  { id: 'grammar-notes', label: '문법 노트', icon: '✦' }
 ]
 
 export default function MenuBar({ currentPage, onNavigate }: Props): JSX.Element {

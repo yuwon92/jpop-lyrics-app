@@ -29,6 +29,17 @@ const api = {
       ipcRenderer.invoke('songs:save-korean-readings', payload)
   },
 
+  grammarNotes: {
+    getAll: () => ipcRenderer.invoke('grammar-notes:get-all'),
+    getBySong: (songId: number) => ipcRenderer.invoke('grammar-notes:get-by-song', songId),
+    add: (payload: { song_id: number | null; point: string; explanation: string; example: string }) =>
+      ipcRenderer.invoke('grammar-notes:add', payload),
+    update: (payload: { id: number; point: string; explanation: string; example: string }) =>
+      ipcRenderer.invoke('grammar-notes:update', payload),
+    delete: (id: number) => ipcRenderer.invoke('grammar-notes:delete', id),
+    toggleFavorite: (id: number) => ipcRenderer.invoke('grammar-notes:toggle-favorite', id)
+  },
+
   vocab: {
     getAll: () => ipcRenderer.invoke('vocab:get-all'),
     getBySong: (songId: number) => ipcRenderer.invoke('vocab:get-by-song', songId),

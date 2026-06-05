@@ -7,9 +7,10 @@ interface Props {
   readingMode: 'hiragana' | 'korean'
   onChange: (field: 'original' | 'reading' | 'reading_ko' | 'translation', value: string) => void
   onWordAdded?: () => void
+  onNoteAdded?: () => void
 }
 
-export default function LyricsRow({ line, readingMode, onChange, onWordAdded }: Props): JSX.Element {
+export default function LyricsRow({ line, readingMode, onChange, onWordAdded, onNoteAdded }: Props): JSX.Element {
   const isKorean = readingMode === 'korean'
 
   const [panelOpen, setPanelOpen] = useState(false)
@@ -18,6 +19,7 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded }: 
   const [translateResult, setTranslateResult] = useState<TranslateResult | null>(null)
   const [grammarResult, setGrammarResult] = useState<GrammarResult | null>(null)
   const [savedWords, setSavedWords] = useState<Set<number>>(new Set())
+  const [savedGrammar, setSavedGrammar] = useState<Set<number>>(new Set())
 
   const prevOriginalRef = useRef(line.original)
   useEffect(() => {
@@ -26,6 +28,8 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded }: 
       setTranslateResult(null)
       setGrammarResult(null)
       setPanelOpen(false)
+      setSavedWords(new Set())
+      setSavedGrammar(new Set())
     }
   }, [line.original])
 
@@ -63,6 +67,21 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded }: 
     })
     setSavedWords((prev) => new Set(prev).add(idx))
     onWordAdded?.()
+  }
+
+  async function handleSaveGrammar(
+    g: { point: string; explanation: string },
+    idx: number
+  ): Promise<void> {
+    if (savedGrammar.has(idx)) return
+    await window.api.grammarNotes.add({
+      song_id: line.song_id ?? null,
+      point: g.point,
+      explanation: g.explanation,
+      example: line.original
+    })
+    setSavedGrammar((prev) => new Set(prev).add(idx))
+    onNoteAdded?.()
   }
 
   const canAnalyze = line.original.trim().length > 0
@@ -163,7 +182,17 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded }: 
                   <div className="analysis-grammar">
                     {grammarResult.grammar.map((g, i) => (
                       <div key={i} className="analysis-grammar-card">
-                        <span className="analysis-grammar-card__point jp-text">{g.point}</span>
+                        <div className="analysis-grammar-card__header">
+                          <span className="analysis-grammar-card__point jp-text">{g.point}</span>
+                          <button
+                            className={`analysis-grammar-card__save${savedGrammar.has(i) ? ' saved' : ''}`}
+                            onClick={() => handleSaveGrammar(g, i)}
+                            disabled={savedGrammar.has(i)}
+                            title="문법 노트에 추가"
+                          >
+                            {savedGrammar.has(i) ? '✓' : '+'}
+                          </button>
+                        </div>
                         <span className="analysis-grammar-card__explanation">{g.explanation}</span>
                       </div>
                     ))}

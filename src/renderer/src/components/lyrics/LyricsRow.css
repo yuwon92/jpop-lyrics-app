@@ -334,10 +334,47 @@
   gap: 3px;
 }
 
+.analysis-grammar-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .analysis-grammar-card__point {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
+}
+
+.analysis-grammar-card__save {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--border-mid);
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-family: var(--font-kr);
+  transition: border-color 0.1s, background 0.1s, color 0.1s;
+}
+
+.analysis-grammar-card__save:hover:not(:disabled) {
+  border-color: var(--border-dark);
+  background: var(--accent-lavender);
+  color: var(--text-on-accent);
+}
+
+.analysis-grammar-card__save.saved {
+  border-color: var(--accent-lavender);
+  color: var(--accent-lavender);
+  cursor: default;
 }
 
 .analysis-grammar-card__explanation {

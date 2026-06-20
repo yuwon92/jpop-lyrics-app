@@ -53,6 +53,20 @@ const GRAMMAR_PROMPT = `당신은 일본어 가사를 한국인 학습자에게 
   ]
 }`
 
+// 모델이 가끔 ```json ... ``` 마크다운 코드 펜스로 감싸 응답하므로,
+// JSON.parse 전에 펜스를 벗기고 첫 { 부터 마지막 } 까지만 추출한다.
+function extractJson(text: string): string {
+  let s = text.trim()
+  const fence = s.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)
+  if (fence) s = fence[1].trim()
+  const start = s.indexOf('{')
+  const end = s.lastIndexOf('}')
+  if (start !== -1 && end !== -1 && end > start) {
+    s = s.slice(start, end + 1)
+  }
+  return s
+}
+
 let keyFilePath: string
 
 function getKeyFilePath(): string {
@@ -173,7 +187,7 @@ export function registerAnthropicHandler(): void {
       const first = message.content[0]
       const text = first?.type === 'text' ? (first.text ?? '') : ''
       if (!text) throw new Error('AI로부터 응답을 받지 못했습니다.')
-      const result = JSON.parse(text.trim())
+      const result = JSON.parse(extractJson(text))
 
       setAnalysisCache(cacheKey, result)
       return result

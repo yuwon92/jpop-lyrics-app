@@ -12,7 +12,7 @@ interface Props {
 type ViewMode = 'all' | 'by-song'
 
 export default function GrammarNotes({ songs }: Props): JSX.Element {
-  const { notes, loading, fetchAll, fetchBySong, deleteNote, toggleFavorite } = useGrammarNotes()
+  const { notes, loading, fetchAll, deleteNote, toggleFavorite } = useGrammarNotes()
 
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null)
@@ -21,19 +21,12 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
   const [editingNote, setEditingNote] = useState<GrammarNote | null>(null)
 
   useEffect(() => {
-    if (viewMode === 'all') {
-      fetchAll()
-    } else if (selectedSongId != null) {
-      fetchBySong(selectedSongId)
-    } else {
-      fetchAll()
-    }
-  }, [viewMode, selectedSongId, fetchAll, fetchBySong])
+    fetchAll()
+  }, [fetchAll])
 
   const refetch = useCallback(() => {
-    if (viewMode === 'all' || selectedSongId == null) fetchAll()
-    else fetchBySong(selectedSongId)
-  }, [viewMode, selectedSongId, fetchAll, fetchBySong])
+    fetchAll()
+  }, [fetchAll])
 
   const handleViewMode = useCallback((mode: ViewMode) => {
     setViewMode(mode)
@@ -79,9 +72,13 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
   }, [notes])
 
   const displayNotes = useMemo(() => {
-    if (showFavOnly) return notes.filter((n) => n.favorited)
-    return notes
-  }, [notes, showFavOnly])
+    let base = notes
+    if (viewMode === 'by-song' && selectedSongId != null) {
+      base = base.filter((n) => n.song_id === selectedSongId)
+    }
+    if (showFavOnly) base = base.filter((n) => n.favorited)
+    return base
+  }, [notes, viewMode, selectedSongId, showFavOnly])
 
   const isEmpty = displayNotes.length === 0 && !loading
 

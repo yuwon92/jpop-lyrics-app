@@ -1,3 +1,4 @@
+
 # 🎵 J-Pop 가사 번역 & 단어장
 
 일본어 가사를 공부하기 위한 데스크톱 앱입니다.  
@@ -35,7 +36,10 @@
 
 ## 스크린샷
 
-> 추후 추가 예정
+<img width="1468" height="938" alt="스크린샷 2026-06-23 225400" src="https://github.com/user-attachments/assets/b5fdd099-911e-4bf5-a7b9-cbc84d13d6b9" />
+<img width="1465" height="945" alt="스크린샷 2026-06-23 225409" src="https://github.com/user-attachments/assets/6bb0ef52-1e8c-43aa-a3a8-b77d1666c39f" />
+<img width="1465" height="932" alt="스크린샷 2026-06-23 225417" src="https://github.com/user-attachments/assets/0023c4bf-897c-48e7-ae48-a4ec4caccedc" />
+<img width="1466" height="943" alt="스크린샷 2026-06-23 225510" src="https://github.com/user-attachments/assets/ee8d1d08-0338-4564-a797-519efe3d7a7a" />
 
 ---
 

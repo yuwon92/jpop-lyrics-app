@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 
 let kuroshiro: unknown = null
+let initError: string | null = null
 
 export async function setupKuroshiro(): Promise<void> {
   try {
@@ -17,11 +18,14 @@ export async function setupKuroshiro(): Promise<void> {
     await instance.init(new KuromojiClass())
     kuroshiro = instance
   } catch (err) {
+    initError = err instanceof Error ? err.message : String(err)
     console.error('[kuroshiro] 초기화 실패:', err)
   }
 }
 
 export function registerKuroshiroHandler(): void {
+  ipcMain.handle('kuroshiro:get-status', () => ({ ready: kuroshiro !== null, error: initError }))
+
   ipcMain.handle('convert-reading-bulk', async (_e, lines: string[]) => {
     if (!kuroshiro) return lines
     const k = kuroshiro as { convert: (text: string, opts: object) => Promise<string> }

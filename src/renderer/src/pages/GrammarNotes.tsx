@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import AddNoteModal from '../components/grammar/AddNoteModal'
+import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song, GrammarNote } from '../types'
 import { useGrammarNotes } from '../hooks/useGrammarNotes'
 import './GrammarNotes.css'
@@ -12,7 +13,7 @@ interface Props {
 type ViewMode = 'all' | 'by-song'
 
 export default function GrammarNotes({ songs }: Props): JSX.Element {
-  const { notes, loading, fetchAll, deleteNote, toggleFavorite } = useGrammarNotes()
+  const { notes, loading, error, fetchAll, deleteNote, toggleFavorite } = useGrammarNotes()
 
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null)
@@ -132,6 +133,7 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
           )}
 
           <div className="grammar-notes-body">
+            {error && <ErrorBanner message={error} onRetry={refetch} />}
             {loading ? (
               <div className="grammar-notes-empty">불러오는 중...</div>
             ) : viewMode === 'by-song' && selectedSongId == null ? (

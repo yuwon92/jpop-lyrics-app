@@ -1,18 +1,20 @@
-import React from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import PixelButton from '../components/shared/PixelButton'
-import { Song, Page } from '../types'
+import ErrorBanner from '../components/shared/ErrorBanner'
+import { Song } from '../types'
 import './Home.css'
 
 interface Props {
   songs: Song[]
   loading: boolean
+  error?: string | null
+  onRetry?: () => void
   onNewSong: () => void
   onEditSong: (song: Song) => void
   onDeleteSong: (id: number) => void
 }
 
-export default function Home({ songs, loading, onNewSong, onEditSong, onDeleteSong }: Props): JSX.Element {
+export default function Home({ songs, loading, error, onRetry, onNewSong, onEditSong, onDeleteSong }: Props): JSX.Element {
   return (
     <div className="home-page">
       <RetroWindow title="노래 목록" icon="♫" accent="pink" className="home-window">
@@ -24,6 +26,7 @@ export default function Home({ songs, loading, onNewSong, onEditSong, onDeleteSo
         </div>
 
         <div className="home-body">
+          {error && <ErrorBanner message={error} onRetry={onRetry} />}
           {loading ? (
             <div className="home-empty">불러오는 중...</div>
           ) : songs.length === 0 ? (

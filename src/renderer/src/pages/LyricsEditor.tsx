@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import LyricsRow from '../components/lyrics/LyricsRow'
 import PixelButton from '../components/shared/PixelButton'
@@ -6,6 +6,7 @@ import PixelInput from '../components/shared/PixelInput'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
 import ApiKeyModal from '../components/lyrics/ApiKeyModal'
+import ErrorBanner from '../components/shared/ErrorBanner'
 import { LyricLine, Song } from '../types'
 import './LyricsEditor.css'
 
@@ -84,12 +85,14 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [readingMode, setReadingMode] = useState<ReadingMode>('hiragana')
   const [convertingKorean, setConvertingKorean] = useState(false)
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
-  const [koreanError, setKoreanError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const dirtyVersionRef = useRef(0)
 
   const markUnsaved = useCallback(() => {
     dirtyVersionRef.current += 1
     setSaved(false)
+    // 편집을 재개하면 오류 표시를 지우고 자동 저장도 다시 동작하게 한다
+    setError(null)
   }, [])
 
   const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
@@ -166,7 +169,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
 
   const generateKoreanReadings = useCallback(async () => {
     setConvertingKorean(true)
-    setKoreanError(null)
+    setError(null)
     try {
       const originals = lines.map((l) => l.original)
       const koReadings = await window.api.anthropic.convertKorean(originals)
@@ -179,7 +182,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했어요.'
-      setKoreanError(msg)
+      setError(msg)
     } finally {
       setConvertingKorean(false)
     }
@@ -214,11 +217,13 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const handleGenerate = useCallback(async () => {
     if (!rawLyrics.trim()) return
     setLoading(true)
+    setError(null)
     try {
       const originals = rawLyrics
         .split('\n')
         .map((l) => l.trim())
         .filter(Boolean)
+      const kuroshiroStatus = await window.api.kuroshiroStatus()
       const readings = await window.api.convertReadingBulk(originals)
       const newLines: LyricLine[] = originals.map((original, i) => ({
         line_index: i,
@@ -239,7 +244,12 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
       setSaved(true)
       onSaved(id)
 
+      if (!kuroshiroStatus.ready) {
+        setError('히라가나 자동 변환 사전을 불러오지 못했어요. 발음(읽기)은 직접 입력해 주세요.')
+      }
       setStep('translate')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '가사 변환/저장 중 오류가 발생했어요.')
     } finally {
       setLoading(false)
     }
@@ -269,20 +279,24 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
         setSaved(true)
       }
       onSaved(id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '저장 중 오류가 발생했어요.')
     } finally {
       setSaving(false)
     }
   }, [title, artist, lines, editingSong, currentSongId, onSaved, setCurrentSongId])
 
   useEffect(() => {
-    if (step !== 'translate' || saved || saving || !title.trim() || lines.length === 0) return
+    // error가 있으면 자동 저장을 멈춘다 — 실패 시 1초마다 무한 재시도 방지
+    // (markUnsaved에서 error를 지우므로 편집을 재개하면 자동 저장도 재개됨)
+    if (step !== 'translate' || saved || saving || error !== null || !title.trim() || lines.length === 0) return
 
     const timerId = window.setTimeout(() => {
       void handleSave()
     }, 1000)
 
     return () => window.clearTimeout(timerId)
-  }, [step, saved, saving, title, artist, lines, handleSave])
+  }, [step, saved, saving, error, title, artist, lines, handleSave])
 
   const handleReset = useCallback(() => {
     setStep('input')
@@ -292,7 +306,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     setLines([])
     setSaved(false)
     setReadingMode('hiragana')
-    setKoreanError(null)
+    setError(null)
   }, [])
 
   return (
@@ -325,6 +339,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                 onChange={(e) => setRawLyrics(e.target.value)}
               />
             </div>
+            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
             <div className="editor-actions">
               <PixelButton
                 variant="primary"
@@ -396,11 +411,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                 </PixelButton>
               </div>
             </div>
-            {koreanError && (
-              <div className="editor-korean-error">
-                ⚠ {koreanError}
-              </div>
-            )}
+            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
             <div className="editor-translate-lines">
               {lines.map((line) => (
                 <LyricsRow

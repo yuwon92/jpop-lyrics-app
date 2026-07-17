@@ -1,4 +1,3 @@
-import React from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import { Theme } from '../hooks/useTheme'
 import './Settings.css'

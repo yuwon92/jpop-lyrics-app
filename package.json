@@ -1,13 +1,17 @@
 {
   "name": "jpop-lyrics-app",
-  "version": "1.0.0",
+  "version": "1.7.3",
   "description": "J-Pop 가사 번역 & 단어장 앱",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "package": "npm run build && electron-builder"
+    "package": "npm run build && electron-builder",
+    "typecheck:node": "tsc --noEmit --composite false -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit --composite false -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
@@ -28,7 +32,8 @@
     "electron-builder": "^24.9.1",
     "electron-vite": "^2.0.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.12"
+    "vite": "^5.0.12",
+    "vitest": "^4.1.10"
   },
   "build": {
     "appId": "com.jpop.lyrics",

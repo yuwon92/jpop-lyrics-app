@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import MenuBar from './components/layout/MenuBar'
 import { useTheme } from './hooks/useTheme'
 import Home from './pages/Home'
@@ -19,7 +19,7 @@ export default function App(): JSX.Element {
   const [editingSong, setEditingSong] = useState<{ song: Song; lines: LyricLine[] } | null>(null)
 
   const { theme, setTheme } = useTheme()
-  const { songs, loading, fetchAll, deleteSong } = useSongs()
+  const { songs, loading, error, fetchAll, deleteSong } = useSongs()
 
   useEffect(() => {
     fetchAll()
@@ -82,6 +82,8 @@ export default function App(): JSX.Element {
           <Home
             songs={songs}
             loading={loading}
+            error={error}
+            onRetry={fetchAll}
             onNewSong={handleNewSong}
             onEditSong={handleEditSong}
             onDeleteSong={handleDeleteSong}

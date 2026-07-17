@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import StudyToolbar from '../components/vocabulary/StudyToolbar'
 import FlashcardModal from '../components/vocabulary/FlashcardModal'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
+import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song, VocabWord } from '../types'
 import { useVocabulary } from '../hooks/useVocabulary'
 import './Vocabulary.css'
@@ -25,7 +26,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
-  const { words, loading, fetchAll, fetchBySong, deleteWord, toggleFavorite } = useVocabulary()
+  const { words, loading, error, fetchAll, fetchBySong, deleteWord, toggleFavorite } = useVocabulary()
 
   const [viewMode, setViewMode] = useState<ViewMode>('all')
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null)
@@ -156,6 +157,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
           )}
 
           <div className="vocab-body">
+            {error && <ErrorBanner message={error} onRetry={refetchWords} />}
             {loading ? (
               <div className="vocab-empty">불러오는 중...</div>
             ) : viewMode === 'by-song' && selectedSongId == null ? (

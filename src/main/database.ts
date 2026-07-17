@@ -50,6 +50,7 @@ interface DB {
 
 let dbPath: string
 let _db: DB | null = null
+let corruptBackupPath: string | null = null
 
 function getDbPath(): string {
   if (!dbPath) {
@@ -58,13 +59,32 @@ function getDbPath(): string {
   return dbPath
 }
 
+/** 로드 시 데이터 파일이 손상되어 있었다면 보존해 둔 사본 경로를 반환 */
+export function getCorruptBackupPath(): string | null {
+  return corruptBackupPath
+}
+
 export function getDb(): DB {
   if (_db) return _db
   const p = getDbPath()
   if (fs.existsSync(p)) {
     try {
       _db = JSON.parse(fs.readFileSync(p, 'utf-8')) as DB
+      // 마지막 정상 기동 시점 스냅샷 (손상 시 수동 복구용)
+      try {
+        fs.copyFileSync(p, p + '.bak')
+      } catch {
+        // 백업 실패는 치명적이지 않음
+      }
     } catch {
+      // 손상된 파일을 삭제하지 않고 보존한 뒤 빈 DB로 시작
+      const backup = p + '.corrupt-' + new Date().toISOString().replace(/[:.]/g, '-')
+      try {
+        fs.renameSync(p, backup)
+        corruptBackupPath = backup
+      } catch {
+        // 보존 실패해도 앱은 계속 진행
+      }
       _db = emptyDb()
     }
   } else {
@@ -86,7 +106,22 @@ function emptyDb(): DB {
 
 export function saveDb(): void {
   if (!_db) return
-  fs.writeFileSync(getDbPath(), JSON.stringify(_db, null, 2), 'utf-8')
+  const p = getDbPath()
+  const tmp = p + '.tmp'
+  const json = JSON.stringify(_db, null, 2)
+  // 원자적 쓰기: 임시 파일에 쓴 뒤 rename — 쓰기 도중 크래시해도 원본 보존
+  fs.writeFileSync(tmp, json, 'utf-8')
+  try {
+    fs.renameSync(tmp, p)
+  } catch {
+    // Windows에서 대상 파일이 잠긴 경우 등 — 직접 쓰기로 폴백
+    try {
+      fs.writeFileSync(p, json, 'utf-8')
+      fs.unlinkSync(tmp)
+    } catch {
+      // 폴백도 실패하면 다음 저장 시도에 맡김 (임시 파일은 남겨 둠)
+    }
+  }
 }
 
 function nextId(table: keyof DB['_nextId']): number {

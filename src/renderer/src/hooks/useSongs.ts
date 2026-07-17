@@ -5,6 +5,7 @@ declare global {
   interface Window {
     api: {
       convertReadingBulk: (lines: string[]) => Promise<string[]>
+      kuroshiroStatus: () => Promise<{ ready: boolean; error: string | null }>
       grammarNotes: {
         getAll: () => Promise<import('../types').GrammarNote[]>
         getBySong: (songId: number) => Promise<import('../types').GrammarNote[]>
@@ -71,12 +72,16 @@ declare global {
 export function useSongs() {
   const [songs, setSongs] = useState<Song[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       const data = await window.api.songs.getAll()
       setSongs(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '노래 목록을 불러오지 못했습니다.')
     } finally {
       setLoading(false)
     }
@@ -84,11 +89,16 @@ export function useSongs() {
 
   const deleteSong = useCallback(
     async (id: number) => {
-      await window.api.songs.delete(id)
+      try {
+        await window.api.songs.delete(id)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '노래를 삭제하지 못했습니다.')
+        return
+      }
       await fetchAll()
     },
     [fetchAll]
   )
 
-  return { songs, loading, fetchAll, deleteSong }
+  return { songs, loading, error, fetchAll, deleteSong }
 }

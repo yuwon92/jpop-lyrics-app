@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import PixelButton from '../shared/PixelButton'
 import PixelInput from '../shared/PixelInput'
 import { useEscapeKey } from '../../hooks/useEscapeKey'

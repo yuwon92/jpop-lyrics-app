@@ -1,6 +1,6 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, dialog } from 'electron'
 import { join } from 'path'
-import { getDb } from './database'
+import { getDb, getCorruptBackupPath } from './database'
 import { registerIpcHandlers } from './ipc-handlers'
 import { setupKuroshiro, registerKuroshiroHandler } from './kuroshiro-handler'
 import { registerAnthropicHandler } from './anthropic-handler'
@@ -43,6 +43,18 @@ app.whenReady().then(async () => {
   })
 
   getDb()
+  const corrupt = getCorruptBackupPath()
+  if (corrupt) {
+    dialog.showMessageBox({
+      type: 'warning',
+      title: '데이터 복구 안내',
+      message: '저장 데이터를 읽을 수 없어 새로 시작합니다.',
+      detail:
+        `손상된 파일은 다음 위치에 보관했습니다:\n${corrupt}\n\n` +
+        `같은 폴더의 jpop-lyrics-data.json.bak 파일을 jpop-lyrics-data.json으로 ` +
+        `복사하면 마지막 정상 시점으로 복구할 수 있습니다.`
+    })
+  }
   registerIpcHandlers()
   registerAnthropicHandler()
   await setupKuroshiro()

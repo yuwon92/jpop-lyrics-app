@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { VocabWord } from '../../types'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 import './FlashcardModal.css'

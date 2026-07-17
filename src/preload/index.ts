@@ -4,6 +4,9 @@ const api = {
   convertReadingBulk: (lines: string[]): Promise<string[]> =>
     ipcRenderer.invoke('convert-reading-bulk', lines),
 
+  kuroshiroStatus: (): Promise<{ ready: boolean; error: string | null }> =>
+    ipcRenderer.invoke('kuroshiro:get-status'),
+
   anthropic: {
     hasKey: (): Promise<boolean> => ipcRenderer.invoke('anthropic:has-key'),
     setKey: (key: string): Promise<void> => ipcRenderer.invoke('anthropic:set-key', key),

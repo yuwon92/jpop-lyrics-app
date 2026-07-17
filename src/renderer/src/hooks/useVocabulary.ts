@@ -26,13 +26,17 @@ function backfillReadings(data: VocabWord[], setWords: Dispatch<SetStateAction<V
 export function useVocabulary() {
   const [words, setWords] = useState<VocabWord[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
       const data = await window.api.vocab.getAll()
       setWords(data)
       backfillReadings(data, setWords)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '단어장을 불러오지 못했습니다.')
     } finally {
       setLoading(false)
     }
@@ -40,10 +44,13 @@ export function useVocabulary() {
 
   const fetchBySong = useCallback(async (songId: number) => {
     setLoading(true)
+    setError(null)
     try {
       const data = await window.api.vocab.getBySong(songId)
       setWords(data)
       backfillReadings(data, setWords)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '단어장을 불러오지 못했습니다.')
     } finally {
       setLoading(false)
     }
@@ -75,5 +82,5 @@ export function useVocabulary() {
     []
   )
 
-  return { words, loading, fetchAll, fetchBySong, addWord, deleteWord, toggleFavorite }
+  return { words, loading, error, fetchAll, fetchBySong, addWord, deleteWord, toggleFavorite }
 }

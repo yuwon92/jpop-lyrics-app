@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { LyricLine, TranslateResult, GrammarResult } from '../../types'
+import { useState, useEffect, useRef } from 'react'
+import { LyricLine, TranslateResult, GrammarResult, GrammarWord } from '../../types'
 import './LyricsRow.css'
 
 interface Props {

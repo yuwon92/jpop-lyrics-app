@@ -10,6 +10,7 @@ const api = {
   anthropic: {
     hasKey: (): Promise<boolean> => ipcRenderer.invoke('anthropic:has-key'),
     setKey: (key: string): Promise<void> => ipcRenderer.invoke('anthropic:set-key', key),
+    deleteKey: (): Promise<void> => ipcRenderer.invoke('anthropic:delete-key'),
     convertKorean: (lines: string[]): Promise<string[]> =>
       ipcRenderer.invoke('anthropic:convert-korean', lines),
     translateWord: (word: string): Promise<string> =>

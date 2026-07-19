@@ -27,6 +27,7 @@ declare global {
       anthropic: {
         hasKey: () => Promise<boolean>
         setKey: (key: string) => Promise<void>
+        deleteKey: () => Promise<void>
         convertKorean: (lines: string[]) => Promise<string[]>
         translateWord: (word: string) => Promise<string>
         analyzeLine: (

@@ -1,7 +1,7 @@
 /* DotGothic16 — 일본어 범위만 적용, size-adjust로 한국어 폰트와 크기 맞춤 */
 @font-face {
   font-family: 'DotGothic16';
-  src: url('https://fonts.gstatic.com/s/dotgothic16/v21/v6-QGYjBJFKgyw5nSoDAGE7L.ttf') format('truetype');
+  src: url('../assets/fonts/dotgothic16-400.ttf') format('truetype');
   unicode-range: U+3000-9FFF, U+F900-FAFF, U+FF65-FF9F, U+31F0-31FF;
   size-adjust: 80%;
   font-display: swap;
@@ -10,19 +10,19 @@
 /* PF Stardust 3.0 */
 @font-face {
   font-family: 'PfStardust30S';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustS.woff2') format('woff2');
+  src: url('../assets/fonts/PFStardustS.woff2') format('woff2');
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: 'PfStardust30S';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustSBold.woff2') format('woff2');
+  src: url('../assets/fonts/PFStardustSBold.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: 'PfStardust30S';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2506-1@1.0/PFStardustSExtraBold.woff2') format('woff2');
+  src: url('../assets/fonts/PFStardustSExtraBold.woff2') format('woff2');
   font-weight: 800;
   font-display: swap;
 }

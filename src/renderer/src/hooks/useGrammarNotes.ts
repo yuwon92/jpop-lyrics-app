@@ -33,12 +33,22 @@ export function useGrammarNotes() {
   }, [])
 
   const deleteNote = useCallback(async (id: number) => {
-    await window.api.grammarNotes.delete(id)
+    try {
+      await window.api.grammarNotes.delete(id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '노트를 삭제하지 못했습니다.')
+      return
+    }
     setNotes((prev) => prev.filter((n) => n.id !== id))
   }, [])
 
   const toggleFavorite = useCallback(async (id: number) => {
-    await window.api.grammarNotes.toggleFavorite(id)
+    try {
+      await window.api.grammarNotes.toggleFavorite(id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '즐겨찾기를 변경하지 못했습니다.')
+      return
+    }
     setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, favorited: !n.favorited } : n)))
   }, [])
 

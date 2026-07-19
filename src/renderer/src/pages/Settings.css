@@ -95,3 +95,46 @@
   color: var(--text-main);
   flex-shrink: 0;
 }
+
+.settings-apikey-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--win-bg-alt);
+  border: 2px solid var(--border-mid);
+  box-shadow: 2px 2px 0 var(--border-mid);
+}
+
+.settings-apikey-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.settings-apikey-card__status {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.settings-apikey-card__desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.settings-apikey-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.settings-apikey-error {
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+}

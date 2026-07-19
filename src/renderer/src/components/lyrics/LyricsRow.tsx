@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { LyricLine, TranslateResult, GrammarResult, GrammarWord } from '../../types'
+import ApiKeyModal from './ApiKeyModal'
+import PixelButton from '../shared/PixelButton'
 import './LyricsRow.css'
 
 interface Props {
@@ -16,6 +18,8 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
   const [panelOpen, setPanelOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [showKeyModal, setShowKeyModal] = useState(false)
   const [translateResult, setTranslateResult] = useState<TranslateResult | null>(null)
   const [grammarResult, setGrammarResult] = useState<GrammarResult | null>(null)
   const [savedWords, setSavedWords] = useState<Set<number>>(new Set())
@@ -33,14 +37,7 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
     }
   }, [line.original])
 
-  async function handleAnalyze(): Promise<void> {
-    if (panelOpen) {
-      setPanelOpen(false)
-      return
-    }
-    setPanelOpen(true)
-    if (translateResult && grammarResult) return
-
+  async function runAnalysis(): Promise<void> {
     setLoading(true)
     setError(null)
     try {
@@ -57,14 +54,36 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
     }
   }
 
+  async function handleAnalyze(): Promise<void> {
+    if (panelOpen) {
+      setPanelOpen(false)
+      return
+    }
+    setPanelOpen(true)
+    if (translateResult && grammarResult) return
+    await runAnalysis()
+  }
+
+  async function handleKeySubmit(key: string): Promise<void> {
+    await window.api.anthropic.setKey(key)
+    setShowKeyModal(false)
+    await runAnalysis()
+  }
+
   async function handleSaveWord(w: GrammarWord, idx: number): Promise<void> {
     if (savedWords.has(idx)) return
-    await window.api.vocab.add({
-      song_id: line.song_id ?? null,
-      word: w.word,
-      reading: w.reading || undefined,
-      meaning: w.meaning
-    })
+    try {
+      await window.api.vocab.add({
+        song_id: line.song_id ?? null,
+        word: w.word,
+        reading: w.reading || undefined,
+        meaning: w.meaning
+      })
+    } catch {
+      setSaveError('단어를 저장하지 못했습니다. 다시 시도해 주세요.')
+      return
+    }
+    setSaveError(null)
     setSavedWords((prev) => new Set(prev).add(idx))
     onWordAdded?.()
   }
@@ -74,12 +93,18 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
     idx: number
   ): Promise<void> {
     if (savedGrammar.has(idx)) return
-    await window.api.grammarNotes.add({
-      song_id: line.song_id ?? null,
-      point: g.point,
-      explanation: g.explanation,
-      example: line.original
-    })
+    try {
+      await window.api.grammarNotes.add({
+        song_id: line.song_id ?? null,
+        point: g.point,
+        explanation: g.explanation,
+        example: line.original
+      })
+    } catch {
+      setSaveError('문법 노트를 저장하지 못했습니다. 다시 시도해 주세요.')
+      return
+    }
+    setSaveError(null)
     setSavedGrammar((prev) => new Set(prev).add(idx))
     onNoteAdded?.()
   }
@@ -132,9 +157,19 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
           {loading && <div className="lyrics-row__panel-loading">분석 중...</div>}
           {error && (
             <div className="lyrics-row__panel-error">
-              {error === 'NO_API_KEY' ? 'API 키가 설정되지 않았습니다.' : error}
+              {error.includes('NO_API_KEY') ? (
+                <>
+                  <span>가사 분석을 하려면 Anthropic API 키가 필요해요.</span>
+                  <PixelButton variant="secondary" size="sm" onClick={() => setShowKeyModal(true)}>
+                    ✦ API 키 설정
+                  </PixelButton>
+                </>
+              ) : (
+                error
+              )}
             </div>
           )}
+          {saveError && <div className="lyrics-row__panel-error">{saveError}</div>}
           {!loading && !error && translateResult && grammarResult && (
             <>
               <div className="analysis-translate">
@@ -202,6 +237,15 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
             </>
           )}
         </div>
+      )}
+
+      {showKeyModal && (
+        <ApiKeyModal
+          description="가사 분석을 위해 Anthropic API 키가 필요해요."
+          submitLabel="✦ 저장 후 분석"
+          onSubmit={handleKeySubmit}
+          onClose={() => setShowKeyModal(false)}
+        />
       )}
     </div>
   )

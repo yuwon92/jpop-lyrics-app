@@ -6,9 +6,16 @@ import './ApiKeyModal.css'
 interface Props {
   onSubmit: (key: string) => void
   onClose: () => void
+  description?: string
+  submitLabel?: string
 }
 
-export default function ApiKeyModal({ onSubmit, onClose }: Props): JSX.Element {
+export default function ApiKeyModal({
+  onSubmit,
+  onClose,
+  description = '한글 발음 변환을 위해 Anthropic API 키가 필요해요.',
+  submitLabel = '✦ 저장 후 변환'
+}: Props): JSX.Element {
   const [key, setKey] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -41,7 +48,7 @@ export default function ApiKeyModal({ onSubmit, onClose }: Props): JSX.Element {
         </div>
         <div className="modal-body">
           <p className="apikey-modal__desc">
-            한글 발음 변환을 위해 Anthropic API 키가 필요해요.<br />
+            {description}<br />
             키는 기기에 암호화되어 저장되며 외부로 전송되지 않아요.
           </p>
           <input
@@ -64,7 +71,7 @@ export default function ApiKeyModal({ onSubmit, onClose }: Props): JSX.Element {
               onClick={handleSubmit}
               disabled={!key.trim() || saving}
             >
-              {saving ? '저장 중...' : '✦ 저장 후 변환'}
+              {saving ? '저장 중...' : submitLabel}
             </PixelButton>
           </div>
         </div>

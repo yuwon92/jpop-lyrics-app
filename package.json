@@ -1,6 +1,6 @@
 {
   "name": "jpop-lyrics-app",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "J-Pop 가사 번역 & 단어장 앱",
   "main": "./out/main/index.js",
   "scripts": {
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@fontsource/noto-sans-jp": "^5.2.9",
     "kuroshiro": "^1.2.0",
     "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "react": "^18.2.0",

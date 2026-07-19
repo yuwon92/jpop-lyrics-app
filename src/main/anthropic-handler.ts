@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { ipcMain, safeStorage, app } from 'electron'
+import { ipcMain, safeStorage, app, dialog } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import { getAnalysisCache, setAnalysisCache } from './database'
@@ -97,6 +97,15 @@ function storeApiKey(key: string): void {
     fs.writeFileSync(p, encrypted)
   } else {
     fs.writeFileSync(p, Buffer.from(key, 'utf-8'))
+    dialog.showMessageBox({
+      type: 'warning',
+      title: 'API 키 저장 경고',
+      message: 'OS 수준 암호화를 사용할 수 없어 API 키가 평문으로 저장되었습니다.',
+      detail:
+        `저장 위치: ${p}\n\n` +
+        `이 컴퓨터를 다른 사람과 공유하는 경우 키가 노출될 수 있습니다. ` +
+        `사용 후 Anthropic 콘솔에서 키를 관리하는 것을 권장합니다.`
+    })
   }
 }
 
@@ -105,6 +114,11 @@ export function registerAnthropicHandler(): void {
 
   ipcMain.handle('anthropic:set-key', (_e, key: string) => {
     storeApiKey(key.trim())
+  })
+
+  ipcMain.handle('anthropic:delete-key', () => {
+    const p = getKeyFilePath()
+    if (fs.existsSync(p)) fs.rmSync(p)
   })
 
   ipcMain.handle('anthropic:convert-korean', async (_e, lines: string[]) => {

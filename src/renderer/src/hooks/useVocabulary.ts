@@ -66,7 +66,12 @@ export function useVocabulary() {
 
   const deleteWord = useCallback(
     async (id: number) => {
-      await window.api.vocab.delete(id)
+      try {
+        await window.api.vocab.delete(id)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '단어를 삭제하지 못했습니다.')
+        return
+      }
       setWords((prev) => prev.filter((w) => w.id !== id))
     },
     []
@@ -74,7 +79,12 @@ export function useVocabulary() {
 
   const toggleFavorite = useCallback(
     async (id: number) => {
-      await window.api.vocab.toggleFavorite(id)
+      try {
+        await window.api.vocab.toggleFavorite(id)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '즐겨찾기를 변경하지 못했습니다.')
+        return
+      }
       setWords((prev) =>
         prev.map((w) => (w.id === id ? { ...w, favorited: !w.favorited } : w))
       )

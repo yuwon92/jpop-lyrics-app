@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import RetroWindow from '../components/layout/RetroWindow'
 import LyricsRow from '../components/lyrics/LyricsRow'
+import LyricsInputStep from '../components/lyrics/LyricsInputStep'
+import SelectionHintLayer from '../components/lyrics/SelectionHintLayer'
 import PixelButton from '../components/shared/PixelButton'
-import PixelInput from '../components/shared/PixelInput'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
 import ApiKeyModal from '../components/lyrics/ApiKeyModal'
 import ErrorBanner from '../components/shared/ErrorBanner'
 import { LyricLine, Song } from '../types'
+import { addVocabWord } from '../lib/vocab'
 import './LyricsEditor.css'
 
 interface Props {
@@ -21,53 +23,8 @@ interface Props {
 
 type Step = 'input' | 'translate'
 type ReadingMode = 'hiragana' | 'korean'
-type SelectionHint = { x: number; y: number } | null
 
 const WORD_SHORTCUT_TIP_KEY = 'jpop-lyrics-word-shortcut-tip-seen'
-
-function getSelectedText(): string {
-  const active = document.activeElement
-  if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
-    const start = active.selectionStart
-    const end = active.selectionEnd
-    if (start != null && end != null && end > start) {
-      return active.value.slice(start, end).trim()
-    }
-  }
-  return window.getSelection()?.toString().trim() ?? ''
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
-}
-
-function getSelectionHintPosition(): SelectionHint {
-  const active = document.activeElement
-  const hintWidth = 160
-
-  if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
-    const start = active.selectionStart
-    const end = active.selectionEnd
-    if (start == null || end == null || end <= start) return null
-
-    const rect = active.getBoundingClientRect()
-    const x = clamp(rect.right - hintWidth, 8, window.innerWidth - hintWidth - 8)
-    const aboveY = rect.top - 34
-    const y = aboveY >= 8 ? aboveY : rect.bottom + 8
-    return { x, y: clamp(y, 8, window.innerHeight - 40) }
-  }
-
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null
-
-  const rect = selection.getRangeAt(0).getBoundingClientRect()
-  if (rect.width === 0 && rect.height === 0) return null
-
-  const x = clamp(rect.left + rect.width / 2 - hintWidth / 2, 8, window.innerWidth - hintWidth - 8)
-  const aboveY = rect.top - 34
-  const y = aboveY >= 8 ? aboveY : rect.bottom + 8
-  return { x, y: clamp(y, 8, window.innerHeight - 40) }
-}
 
 export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded }: Props): JSX.Element {
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
@@ -81,7 +38,6 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [showWordModal, setShowWordModal] = useState(false)
   const [initialWord, setInitialWord] = useState('')
   const [showShortcutToast, setShowShortcutToast] = useState(false)
-  const [selectionHint, setSelectionHint] = useState<SelectionHint>(null)
   const [readingMode, setReadingMode] = useState<ReadingMode>('hiragana')
   const [convertingKorean, setConvertingKorean] = useState(false)
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
@@ -96,13 +52,12 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   }, [])
 
   const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
-    await window.api.vocab.add({ song_id: currentSongId, word, reading: reading || undefined, meaning })
+    await addVocabWord({ songId: currentSongId, word, reading, meaning })
     onWordAdded?.()
   }, [currentSongId, onWordAdded])
 
   const openWordModal = useCallback((word = '') => {
     setInitialWord(word)
-    setSelectionHint(null)
     setShowWordModal(true)
   }, [])
 
@@ -120,52 +75,6 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     const timerId = window.setTimeout(() => setShowShortcutToast(false), 4500)
     return () => window.clearTimeout(timerId)
   }, [step])
-
-  useEffect(() => {
-    if (step !== 'translate' || showWordModal) {
-      setSelectionHint(null)
-      return
-    }
-
-    const updateSelectionHint = () => {
-      window.setTimeout(() => {
-        if (!getSelectedText()) {
-          setSelectionHint(null)
-          return
-        }
-        setSelectionHint(getSelectionHintPosition())
-      }, 0)
-    }
-
-    document.addEventListener('selectionchange', updateSelectionHint)
-    window.addEventListener('mouseup', updateSelectionHint)
-    window.addEventListener('keyup', updateSelectionHint)
-    window.addEventListener('scroll', updateSelectionHint, true)
-
-    return () => {
-      document.removeEventListener('selectionchange', updateSelectionHint)
-      window.removeEventListener('mouseup', updateSelectionHint)
-      window.removeEventListener('keyup', updateSelectionHint)
-      window.removeEventListener('scroll', updateSelectionHint, true)
-    }
-  }, [step, showWordModal])
-
-  useEffect(() => {
-    if (step !== 'translate' || showWordModal) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!e.ctrlKey || e.shiftKey || e.altKey || e.metaKey || e.key.toLowerCase() !== 'e') return
-
-      const selectedText = getSelectedText()
-      if (!selectedText) return
-
-      e.preventDefault()
-      openWordModal(selectedText)
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [step, showWordModal, openWordModal])
 
   const generateKoreanReadings = useCallback(async () => {
     setConvertingKorean(true)
@@ -312,46 +221,18 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   return (
     <div className="lyrics-editor">
       {step === 'input' ? (
-        <RetroWindow title="가사 입력" icon="✏" accent="pink" className="editor-input-window">
-          <div className="editor-input-body">
-            <div className="editor-meta-row">
-              <PixelInput
-                label="노래 제목"
-                placeholder="예) 夜に駆ける"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                style={{ flex: 2 }}
-              />
-              <PixelInput
-                label="아티스트"
-                placeholder="예) YOASOBI"
-                value={artist}
-                onChange={(e) => setArtist(e.target.value)}
-                style={{ flex: 1 }}
-              />
-            </div>
-            <div className="editor-textarea-wrap">
-              <label className="pixel-input-label">일본어 가사 붙여넣기</label>
-              <textarea
-                className="editor-textarea"
-                placeholder={'가사를 한 줄씩 붙여넣으세요.\n예)\n夜に駆ける\n沈むように溶けてゆくように'}
-                value={rawLyrics}
-                onChange={(e) => setRawLyrics(e.target.value)}
-              />
-            </div>
-            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-            <div className="editor-actions">
-              <PixelButton
-                variant="primary"
-                size="lg"
-                onClick={handleGenerate}
-                disabled={!rawLyrics.trim() || !title.trim() || loading}
-              >
-                {loading ? '변환 중...' : '✦ 히라가나 자동 생성'}
-              </PixelButton>
-            </div>
-          </div>
-        </RetroWindow>
+        <LyricsInputStep
+          title={title}
+          artist={artist}
+          rawLyrics={rawLyrics}
+          loading={loading}
+          error={error}
+          onTitleChange={setTitle}
+          onArtistChange={setArtist}
+          onRawLyricsChange={setRawLyrics}
+          onDismissError={() => setError(null)}
+          onGenerate={handleGenerate}
+        />
       ) : (
         <div className="editor-translate-layout">
           {showShortcutToast && (
@@ -359,14 +240,10 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
               팁: 단어를 드래그하고 Ctrl+E를 누르면 바로 단어장에 추가돼요
             </div>
           )}
-          {selectionHint && (
-            <div
-              className="editor-selection-hint"
-              style={{ left: selectionHint.x, top: selectionHint.y }}
-            >
-              Ctrl+E로 단어 추가
-            </div>
-          )}
+          <SelectionHintLayer
+            active={step === 'translate' && !showWordModal}
+            onAddWord={openWordModal}
+          />
           <RetroWindow
             title={`${title}${artist ? ` — ${artist}` : ''}`}
             icon="♪"
@@ -380,12 +257,14 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                   value={title}
                   onChange={(e) => { setTitle(e.target.value); markUnsaved() }}
                   placeholder="노래 제목"
+                  aria-label="노래 제목"
                 />
                 <input
                   className="editor-meta-input editor-meta-input--artist"
                   value={artist}
                   onChange={(e) => { setArtist(e.target.value); markUnsaved() }}
                   placeholder="아티스트"
+                  aria-label="아티스트"
                 />
               </div>
               <div className="editor-translate-actions">
@@ -418,7 +297,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
                   key={line.line_index}
                   line={line}
                   readingMode={readingMode}
-                  onChange={(field, value) => handleLineChange(line.line_index, field, value)}
+                  onChange={handleLineChange}
                   onWordAdded={onWordAdded}
                   onNoteAdded={onNoteAdded}
                 />

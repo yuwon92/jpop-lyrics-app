@@ -10,6 +10,7 @@ import FloatingAddButton from './components/vocabulary/FloatingAddButton'
 import AddWordModal from './components/vocabulary/AddWordModal'
 import { Page, Song, LyricLine } from './types'
 import { useSongs } from './hooks/useSongs'
+import { addVocabWord } from './lib/vocab'
 import './App.css'
 
 export default function App(): JSX.Element {
@@ -66,7 +67,7 @@ export default function App(): JSX.Element {
 
   const handleAddWord = useCallback(
     async (word: string, reading: string, meaning: string) => {
-      await window.api.vocab.add({ song_id: currentSongId, word, reading: reading || undefined, meaning })
+      await addVocabWord({ songId: currentSongId, word, reading, meaning })
       fetchAll()
     },
     [currentSongId, fetchAll]

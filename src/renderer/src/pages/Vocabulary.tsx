@@ -7,6 +7,7 @@ import AddWordModal from '../components/vocabulary/AddWordModal'
 import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song, VocabWord } from '../types'
 import { useVocabulary } from '../hooks/useVocabulary'
+import { addVocabWord } from '../lib/vocab'
 import './Vocabulary.css'
 
 interface Props {
@@ -87,7 +88,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
   }, [viewMode, selectedSongId, fetchAll, fetchBySong])
 
   const handleAddWord = useCallback(async (word: string, reading: string, meaning: string) => {
-    await window.api.vocab.add({ song_id: selectedSongId, word, reading: reading || undefined, meaning })
+    await addVocabWord({ songId: selectedSongId, word, reading, meaning })
     onWordAdded?.()
     refetchWords()
   }, [selectedSongId, refetchWords, onWordAdded])
@@ -248,6 +249,8 @@ function WordCard({
             className={`word-card__fav ${word.favorited ? 'favorited' : ''}`}
             onClick={() => onToggleFavorite(word.id)}
             title={word.favorited ? '즐겨찾기 해제' : '즐겨찾기'}
+            aria-label={`'${word.word}' ${word.favorited ? '즐겨찾기 해제' : '즐겨찾기'}`}
+            aria-pressed={word.favorited}
           >
             {word.favorited ? '★' : '☆'}
           </button>
@@ -255,6 +258,7 @@ function WordCard({
             className="word-card__edit"
             onClick={() => onEdit(word)}
             title="수정"
+            aria-label={`'${word.word}' 수정`}
           >
             ✎
           </button>
@@ -262,6 +266,7 @@ function WordCard({
             className="word-card__delete"
             onClick={() => onDelete(word.id)}
             title="삭제"
+            aria-label={`'${word.word}' 삭제`}
           >
             ×
           </button>

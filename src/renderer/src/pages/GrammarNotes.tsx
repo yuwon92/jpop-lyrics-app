@@ -229,6 +229,8 @@ function GrammarNoteCard({
             className={`grammar-note-card__fav ${note.favorited ? 'favorited' : ''}`}
             onClick={() => onToggleFavorite(note.id)}
             title={note.favorited ? '즐겨찾기 해제' : '즐겨찾기'}
+            aria-label={`'${note.point}' ${note.favorited ? '즐겨찾기 해제' : '즐겨찾기'}`}
+            aria-pressed={note.favorited}
           >
             {note.favorited ? '★' : '☆'}
           </button>
@@ -236,6 +238,7 @@ function GrammarNoteCard({
             className="grammar-note-card__edit"
             onClick={() => onEdit(note)}
             title="수정"
+            aria-label={`'${note.point}' 수정`}
           >
             ✎
           </button>
@@ -243,6 +246,7 @@ function GrammarNoteCard({
             className="grammar-note-card__delete"
             onClick={() => onDelete(note.id)}
             title="삭제"
+            aria-label={`'${note.point}' 삭제`}
           >
             ×
           </button>

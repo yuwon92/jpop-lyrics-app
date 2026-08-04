@@ -81,6 +81,7 @@ function SongCard({
             }
           }}
           title="삭제"
+          aria-label={`'${song.title}' 삭제`}
         >
           ×
         </button>

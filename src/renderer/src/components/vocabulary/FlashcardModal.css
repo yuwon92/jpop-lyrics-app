@@ -1,17 +1,12 @@
+/* 공통 모달 셸(shared/Modal.css) 위에 낱말카드 전용 오버라이드 */
+
 .flashcard-overlay {
-  position: fixed;
-  inset: 0;
   background: rgba(61, 53, 82, 0.55);
   z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   backdrop-filter: blur(3px);
 }
 
 .flashcard-panel {
-  background: var(--win-bg);
-  border: 2px solid var(--border-dark);
   box-shadow: 6px 6px 0 var(--border-dark);
   width: 420px;
   max-width: 92vw;
@@ -25,26 +20,8 @@
   to   { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-.flashcard-titlebar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+.flashcard-panel .modal-titlebar {
   background: var(--accent-pink);
-  border-bottom: 2px solid var(--border-dark);
-  user-select: none;
-  color: var(--text-on-accent);
-}
-
-.flashcard-titlebar__icon {
-  font-size: 16px;
-}
-
-.flashcard-titlebar__title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-on-accent);
-  flex: 1;
 }
 
 .flashcard-titlebar__count {
@@ -53,27 +30,6 @@
   color: var(--text-on-accent);
   opacity: 0.7;
   margin-right: 4px;
-}
-
-.flashcard-close-btn {
-  background: var(--win-bg);
-  border: 1.5px solid var(--border-dark);
-  width: 22px;
-  height: 22px;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 1px 1px 0 var(--border-dark);
-  color: var(--text-main);
-  font-family: var(--font-kr);
-}
-
-.flashcard-close-btn:hover {
-  background: var(--color-danger);
 }
 
 /* 3D flip stage */

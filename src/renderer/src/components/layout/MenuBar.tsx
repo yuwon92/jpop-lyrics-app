@@ -36,6 +36,7 @@ export default function MenuBar({ currentPage, onNavigate }: Props): JSX.Element
         className={`menubar__settings-btn ${currentPage === 'settings' ? 'active' : ''}`}
         onClick={() => onNavigate('settings')}
         title="설정"
+        aria-label="설정"
       >
         ⚙
       </button>

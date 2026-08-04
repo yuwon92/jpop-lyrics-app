@@ -104,7 +104,25 @@ function emptyDb(): DB {
   }
 }
 
+// 연속 변경(자동 저장, 일괄 추가 등)을 모아 한 번만 디스크에 쓴다.
+// 전체 DB를 JSON으로 재작성하므로 호출마다 쓰면 데이터가 커질수록 비싸진다.
+const SAVE_DEBOUNCE_MS = 300
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+
 export function saveDb(): void {
+  if (!_db || saveTimer) return
+  saveTimer = setTimeout(() => {
+    saveTimer = null
+    flushDb()
+  }, SAVE_DEBOUNCE_MS)
+}
+
+/** 대기 중인 저장을 즉시 디스크에 반영 (앱 종료 시 필수 호출) */
+export function flushDb(): void {
+  if (saveTimer) {
+    clearTimeout(saveTimer)
+    saveTimer = null
+  }
   if (!_db) return
   const p = getDbPath()
   const tmp = p + '.tmp'
@@ -277,16 +295,42 @@ export function deleteVocab(id: number): void {
   saveDb()
 }
 
+// 캐시가 무한히 자라 DB 파일을 키우는 것을 막기 위한 항목 수 상한
+const ANALYSIS_CACHE_MAX = 500
+
+interface AnalysisCacheEntry {
+  v: unknown
+  t: number
+}
+
+// 구버전 캐시는 값을 그대로 저장했으므로 {v, t} 래핑 여부로 구분한다
+function isCacheEntry(x: unknown): x is AnalysisCacheEntry {
+  return typeof x === 'object' && x !== null && 'v' in x && 't' in x
+}
+
+function entryTime(x: unknown): number {
+  return isCacheEntry(x) ? x.t : 0
+}
+
 export function getAnalysisCache(key: string): unknown | null {
   const db = getDb()
   if (!db.analysisCache) db.analysisCache = {}
-  return db.analysisCache[key] ?? null
+  const entry = db.analysisCache[key]
+  if (entry === undefined || entry === null) return null
+  return isCacheEntry(entry) ? entry.v : entry
 }
 
 export function setAnalysisCache(key: string, value: unknown): void {
   const db = getDb()
   if (!db.analysisCache) db.analysisCache = {}
-  db.analysisCache[key] = value
+  db.analysisCache[key] = { v: value, t: Date.now() } satisfies AnalysisCacheEntry
+  const keys = Object.keys(db.analysisCache)
+  if (keys.length > ANALYSIS_CACHE_MAX) {
+    keys.sort((a, b) => entryTime(db.analysisCache[a]) - entryTime(db.analysisCache[b]))
+    for (const k of keys.slice(0, keys.length - ANALYSIS_CACHE_MAX)) {
+      delete db.analysisCache[k]
+    }
+  }
   saveDb()
 }
 

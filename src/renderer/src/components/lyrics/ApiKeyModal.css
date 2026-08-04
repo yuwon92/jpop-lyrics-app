@@ -1,85 +1,11 @@
-/* reuse modal-overlay / modal-window / modal-titlebar / modal-actions from AddWordModal.css */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(61, 53, 82, 0.45);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(2px);
-}
+/* 공통 모달 셸 스타일은 shared/Modal.css 참조 — 여기는 API 키 모달 오버라이드만 */
 
-.modal-window {
-  background: var(--win-bg);
-  border: 2px solid var(--border-dark);
-  box-shadow: 4px 4px 0 var(--border-dark);
+.apikey-modal-window {
   width: 380px;
-  max-width: 90vw;
-  overflow: hidden;
-  animation: modal-pop 0.15s ease-out;
 }
 
-@keyframes modal-pop {
-  from { transform: scale(0.93) translateY(8px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-
-.modal-titlebar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+.apikey-modal-window .modal-titlebar {
   background: var(--accent-pink);
-  border-bottom: 2px solid var(--border-dark);
-  user-select: none;
-  color: var(--text-on-accent);
-}
-
-.modal-titlebar__icon {
-  font-size: 15px;
-}
-
-.modal-titlebar__title {
-  flex: 1;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-on-accent);
-}
-
-.modal-close-btn {
-  background: var(--win-bg);
-  border: 1.5px solid var(--border-dark);
-  width: 20px;
-  height: 20px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 1px 1px 0 var(--border-dark);
-  color: var(--text-main);
-  font-family: var(--font-kr);
-}
-
-.modal-close-btn:hover {
-  background: var(--color-danger);
-}
-
-.modal-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 4px;
 }
 
 .apikey-modal__desc {

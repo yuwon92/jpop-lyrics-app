@@ -1,11 +1,18 @@
-import { useState, useCallback, Dispatch, SetStateAction } from 'react'
+import { useCallback, Dispatch, SetStateAction } from 'react'
 import { VocabWord } from '../types'
+import { JAPANESE_RE } from '../lib/japanese'
+import { useFavoriteCollection } from './useFavoriteCollection'
 
-const JAPANESE_RE = /[ぁ-鿿＀-ﾟ]/
+// 세션 내에서 이미 백필을 시도한 단어는 다시 시도하지 않는다
+// (변환 실패가 반복되거나 목록을 다시 불러올 때마다 재실행되는 것을 방지)
+const attemptedBackfillIds = new Set<number>()
 
 function backfillReadings(data: VocabWord[], setWords: Dispatch<SetStateAction<VocabWord[]>>): void {
-  const noReading = data.filter((w) => !w.reading && JAPANESE_RE.test(w.word))
+  const noReading = data.filter(
+    (w) => !w.reading && JAPANESE_RE.test(w.word) && !attemptedBackfillIds.has(w.id)
+  )
   if (noReading.length === 0) return
+  noReading.forEach((w) => attemptedBackfillIds.add(w.id))
   window.api.convertReadingBulk(noReading.map((w) => w.word))
     .then((readings) => {
       const entries = noReading
@@ -24,37 +31,26 @@ function backfillReadings(data: VocabWord[], setWords: Dispatch<SetStateAction<V
 }
 
 export function useVocabulary() {
-  const [words, setWords] = useState<VocabWord[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchAll = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await window.api.vocab.getAll()
-      setWords(data)
-      backfillReadings(data, setWords)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '단어장을 불러오지 못했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const fetchBySong = useCallback(async (songId: number) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await window.api.vocab.getBySong(songId)
-      setWords(data)
-      backfillReadings(data, setWords)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '단어장을 불러오지 못했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const {
+    items: words,
+    loading,
+    error,
+    fetchAll,
+    fetchBySong,
+    deleteItem: deleteWord,
+    toggleFavorite
+  } = useFavoriteCollection<VocabWord>({
+    fetchAllApi: () => window.api.vocab.getAll(),
+    fetchBySongApi: (songId) => window.api.vocab.getBySong(songId),
+    deleteApi: (id) => window.api.vocab.delete(id),
+    toggleFavoriteApi: (id) => window.api.vocab.toggleFavorite(id),
+    messages: {
+      fetch: '단어장을 불러오지 못했습니다.',
+      delete: '단어를 삭제하지 못했습니다.',
+      favorite: '즐겨찾기를 변경하지 못했습니다.'
+    },
+    onFetched: backfillReadings
+  })
 
   const addWord = useCallback(
     async (payload: { song_id: number | null; word: string; meaning: string }) => {
@@ -62,34 +58,6 @@ export function useVocabulary() {
       await fetchAll()
     },
     [fetchAll]
-  )
-
-  const deleteWord = useCallback(
-    async (id: number) => {
-      try {
-        await window.api.vocab.delete(id)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '단어를 삭제하지 못했습니다.')
-        return
-      }
-      setWords((prev) => prev.filter((w) => w.id !== id))
-    },
-    []
-  )
-
-  const toggleFavorite = useCallback(
-    async (id: number) => {
-      try {
-        await window.api.vocab.toggleFavorite(id)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '즐겨찾기를 변경하지 못했습니다.')
-        return
-      }
-      setWords((prev) =>
-        prev.map((w) => (w.id === id ? { ...w, favorited: !w.favorited } : w))
-      )
-    },
-    []
   )
 
   return { words, loading, error, fetchAll, fetchBySong, addWord, deleteWord, toggleFavorite }

@@ -1,18 +1,25 @@
-import { useState, useEffect, useRef } from 'react'
+import { memo, useState, useEffect, useRef } from 'react'
 import { LyricLine, TranslateResult, GrammarResult, GrammarWord } from '../../types'
 import ApiKeyModal from './ApiKeyModal'
 import PixelButton from '../shared/PixelButton'
+import { addVocabWord } from '../../lib/vocab'
 import './LyricsRow.css'
 
 interface Props {
   line: LyricLine
   readingMode: 'hiragana' | 'korean'
-  onChange: (field: 'original' | 'reading' | 'reading_ko' | 'translation', value: string) => void
+  onChange: (
+    index: number,
+    field: 'original' | 'reading' | 'reading_ko' | 'translation',
+    value: string
+  ) => void
   onWordAdded?: () => void
   onNoteAdded?: () => void
 }
 
-export default function LyricsRow({ line, readingMode, onChange, onWordAdded, onNoteAdded }: Props): JSX.Element {
+// 한 줄 편집 시 다른 줄이 함께 리렌더되지 않도록 memo 처리
+// (부모는 line 객체와 안정된 onChange 콜백만 넘겨야 효과가 있다)
+function LyricsRow({ line, readingMode, onChange, onWordAdded, onNoteAdded }: Props): JSX.Element {
   const isKorean = readingMode === 'korean'
 
   const [panelOpen, setPanelOpen] = useState(false)
@@ -73,10 +80,10 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
   async function handleSaveWord(w: GrammarWord, idx: number): Promise<void> {
     if (savedWords.has(idx)) return
     try {
-      await window.api.vocab.add({
-        song_id: line.song_id ?? null,
+      await addVocabWord({
+        songId: line.song_id ?? null,
         word: w.word,
-        reading: w.reading || undefined,
+        reading: w.reading,
         meaning: w.meaning
       })
     } catch {
@@ -119,20 +126,23 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
           <input
             className="lyrics-row__original jp-text"
             value={line.original}
-            onChange={(e) => onChange('original', e.target.value)}
+            onChange={(e) => onChange(line.line_index, 'original', e.target.value)}
             placeholder="일본어 가사"
+            aria-label={`${line.line_index + 1}행 일본어 가사`}
           />
           <input
             className={`lyrics-row__reading${isKorean ? ' lyrics-row__reading--korean' : ' jp-text'}`}
             value={isKorean ? (line.reading_ko ?? '') : line.reading}
-            onChange={(e) => onChange(isKorean ? 'reading_ko' : 'reading', e.target.value)}
+            onChange={(e) => onChange(line.line_index, isKorean ? 'reading_ko' : 'reading', e.target.value)}
             placeholder={isKorean ? '한글 발음' : '히라가나'}
+            aria-label={`${line.line_index + 1}행 ${isKorean ? '한글 발음' : '히라가나 읽기'}`}
           />
           <textarea
             className="lyrics-row__translation"
             value={line.translation}
-            onChange={(e) => onChange('translation', e.target.value)}
+            onChange={(e) => onChange(line.line_index, 'translation', e.target.value)}
             placeholder="번역을 입력하세요..."
+            aria-label={`${line.line_index + 1}행 번역`}
             rows={1}
             onInput={(e) => {
               const el = e.currentTarget
@@ -146,6 +156,8 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
             className={`lyrics-row__analyze-btn${panelOpen ? ' active' : ''}`}
             onClick={handleAnalyze}
             title="가사 분석"
+            aria-label={`${line.line_index + 1}행 가사 분석`}
+            aria-expanded={panelOpen}
           >
             ?
           </button>
@@ -201,6 +213,7 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
                             onClick={() => handleSaveWord(w, i)}
                             disabled={savedWords.has(i)}
                             title="단어장에 추가"
+                            aria-label={`'${w.word}' 단어장에 추가`}
                           >
                             {savedWords.has(i) ? '✓' : '+'}
                           </button>
@@ -224,6 +237,7 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
                             onClick={() => handleSaveGrammar(g, i)}
                             disabled={savedGrammar.has(i)}
                             title="문법 노트에 추가"
+                            aria-label={`'${g.point}' 문법 노트에 추가`}
                           >
                             {savedGrammar.has(i) ? '✓' : '+'}
                           </button>
@@ -250,3 +264,5 @@ export default function LyricsRow({ line, readingMode, onChange, onWordAdded, on
     </div>
   )
 }
+
+export default memo(LyricsRow)

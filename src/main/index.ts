@@ -1,6 +1,6 @@
 import { app, shell, BrowserWindow, dialog } from 'electron'
 import { join } from 'path'
-import { getDb, getCorruptBackupPath } from './database'
+import { getDb, getCorruptBackupPath, flushDb } from './database'
 import { registerIpcHandlers } from './ipc-handlers'
 import { setupKuroshiro, registerKuroshiroHandler } from './kuroshiro-handler'
 import { registerAnthropicHandler } from './anthropic-handler'
@@ -73,3 +73,6 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
+
+// 디바운스로 대기 중인 저장이 있으면 종료 전에 반드시 디스크에 반영
+app.on('before-quit', () => flushDb())

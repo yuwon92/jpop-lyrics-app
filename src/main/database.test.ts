@@ -45,6 +45,7 @@ describe('getDb', () => {
   it('정상 파일 로드 시 .bak 스냅샷을 남긴다', async () => {
     const first = await loadDb()
     first.saveSong({ title: '曲', artist: 'A', lines: [] })
+    first.flushDb()
 
     const second = await loadDb()
     second.getDb()
@@ -73,15 +74,60 @@ describe('getDb', () => {
   })
 })
 
-describe('saveDb (원자적 쓰기)', () => {
-  it('저장 후 .tmp 잔여물 없이 유효한 JSON이 남는다', async () => {
+describe('saveDb (원자적 쓰기 + 디바운스)', () => {
+  it('flushDb 후 .tmp 잔여물 없이 유효한 JSON이 남는다', async () => {
     const db = await loadDb()
     db.saveSong({ title: '曲', artist: 'A', lines: [] })
+    db.flushDb()
 
     expect(fs.existsSync(dataPath())).toBe(true)
     expect(fs.existsSync(dataPath() + '.tmp')).toBe(false)
     const parsed = JSON.parse(fs.readFileSync(dataPath(), 'utf-8'))
     expect(parsed.songs).toHaveLength(1)
+  })
+
+  it('연속 변경은 디바운스되어 타이머 경과 후 한 번에 기록된다', async () => {
+    vi.useFakeTimers()
+    try {
+      const db = await loadDb()
+      db.saveSong({ title: '曲1', artist: 'A', lines: [] })
+      db.saveSong({ title: '曲2', artist: 'B', lines: [] })
+      // 아직 타이머가 돌지 않았으므로 디스크에는 없다
+      expect(fs.existsSync(dataPath())).toBe(false)
+
+      vi.advanceTimersByTime(400)
+      expect(fs.existsSync(dataPath())).toBe(true)
+      const parsed = JSON.parse(fs.readFileSync(dataPath(), 'utf-8'))
+      expect(parsed.songs).toHaveLength(2)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('analysisCache', () => {
+  it('set/get 라운드트립과 구버전(래핑 없는) 항목 읽기', async () => {
+    const db = await loadDb()
+    db.setAnalysisCache('k1', { literal: '직역' })
+    expect(db.getAnalysisCache('k1')).toEqual({ literal: '직역' })
+    expect(db.getAnalysisCache('없는키')).toBeNull()
+
+    // 구버전 형식: 값이 그대로 저장돼 있어도 읽을 수 있어야 한다
+    const state = db.getDb()
+    state.analysisCache['legacy'] = { line: '原文', literal: '레거시' }
+    expect(db.getAnalysisCache('legacy')).toEqual({ line: '原文', literal: '레거시' })
+  })
+
+  it('상한(500개)을 넘으면 오래된 항목부터 제거된다', async () => {
+    const db = await loadDb()
+    for (let i = 0; i < 501; i++) {
+      db.setAnalysisCache(`key-${i}`, i)
+    }
+    const state = db.getDb()
+    expect(Object.keys(state.analysisCache)).toHaveLength(500)
+    // 첫 항목이 밀려나고 최신 항목은 남는다
+    expect(db.getAnalysisCache('key-0')).toBeNull()
+    expect(db.getAnalysisCache('key-500')).toBe(500)
   })
 })
 
@@ -168,6 +214,7 @@ describe('데이터 지속성', () => {
       lines: [{ line_index: 0, original: '歌詞', reading: 'かし', translation: '가사' }]
     })
     first.addVocab({ song_id: songId, word: '歌詞', meaning: '가사' })
+    first.flushDb()
 
     const second = await loadDb()
     const { song, lines } = second.getSong(songId)

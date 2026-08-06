@@ -20,8 +20,8 @@ const THEMES: { id: Theme; label: string; desc: string; swatches: string[] }[] =
   {
     id: 'white',
     label: '화이트',
-    desc: '깔끔한 라이트',
-    swatches: ['#FFFFFF', '#F6F6F6', '#4A4A4A', '#2F2F2F']
+    desc: '라이트 & 옐로 포인트',
+    swatches: ['#FFFFFF', '#F6F6F6', '#FFE08A', '#F6D35C']
   },
   {
     id: 'dark',

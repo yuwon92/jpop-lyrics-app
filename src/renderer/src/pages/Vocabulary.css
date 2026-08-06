@@ -253,7 +253,7 @@
 }
 
 .word-card__edit:hover {
-  color: var(--accent-lavender);
+  color: var(--accent-lavender-ink);
 }
 
 .word-card__delete {
@@ -289,7 +289,7 @@
 
 .word-card__song {
   font-size: 11px;
-  color: var(--accent-lavender);
+  color: var(--accent-lavender-ink);
   font-weight: 700;
   border-top: 1px dashed var(--bg-secondary);
   padding-top: 4px;

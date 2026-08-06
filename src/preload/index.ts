@@ -7,6 +7,13 @@ const api = {
   kuroshiroStatus: (): Promise<{ ready: boolean; error: string | null }> =>
     ipcRenderer.invoke('kuroshiro:get-status'),
 
+  japanese: {
+    recommendLemma: (
+      text: string
+    ): Promise<{ selected: string; lemma: string; reading: string; suggested: boolean }> =>
+      ipcRenderer.invoke('japanese:recommend-lemma', text)
+  },
+
   anthropic: {
     hasKey: (): Promise<boolean> => ipcRenderer.invoke('anthropic:has-key'),
     setKey: (key: string): Promise<void> => ipcRenderer.invoke('anthropic:set-key', key),

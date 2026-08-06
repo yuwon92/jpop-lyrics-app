@@ -6,6 +6,14 @@ declare global {
     api: {
       convertReadingBulk: (lines: string[]) => Promise<string[]>
       kuroshiroStatus: () => Promise<{ ready: boolean; error: string | null }>
+      japanese: {
+        recommendLemma: (text: string) => Promise<{
+          selected: string
+          lemma: string
+          reading: string
+          suggested: boolean
+        }>
+      }
       grammarNotes: {
         getAll: () => Promise<import('../types').GrammarNote[]>
         getBySong: (songId: number) => Promise<import('../types').GrammarNote[]>

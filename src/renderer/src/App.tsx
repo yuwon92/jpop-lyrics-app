@@ -97,6 +97,7 @@ export default function App(): JSX.Element {
             currentSongId={currentSongId}
             setCurrentSongId={setCurrentSongId}
             onWordAdded={fetchAll}
+            onExit={() => handleNavigate('home')}
           />
         )}
         {page === 'vocabulary' && <Vocabulary songs={songs} onWordAdded={fetchAll} />}

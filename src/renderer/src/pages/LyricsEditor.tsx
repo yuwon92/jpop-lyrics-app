@@ -19,14 +19,22 @@ interface Props {
   setCurrentSongId: (id: number | null) => void
   onWordAdded?: () => void
   onNoteAdded?: () => void
+  onExit?: () => void
 }
 
 type Step = 'input' | 'translate'
 type ReadingMode = 'hiragana' | 'korean'
 
+type WordModalState = {
+  initialWord: string
+  initialReading?: string
+  selectedWord?: string
+  lemmaSuggested?: boolean
+}
+
 const WORD_SHORTCUT_TIP_KEY = 'jpop-lyrics-word-shortcut-tip-seen'
 
-export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded }: Props): JSX.Element {
+export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded, onExit }: Props): JSX.Element {
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
   const [title, setTitle] = useState(editingSong?.song.title ?? '')
   const [artist, setArtist] = useState(editingSong?.song.artist ?? '')
@@ -35,14 +43,14 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [showWordModal, setShowWordModal] = useState(false)
-  const [initialWord, setInitialWord] = useState('')
+  const [wordModal, setWordModal] = useState<WordModalState | null>(null)
   const [showShortcutToast, setShowShortcutToast] = useState(false)
   const [readingMode, setReadingMode] = useState<ReadingMode>('hiragana')
   const [convertingKorean, setConvertingKorean] = useState(false)
   const [showApiKeyModal, setShowApiKeyModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const dirtyVersionRef = useRef(0)
+  const wordModalRequestRef = useRef(0)
 
   const markUnsaved = useCallback(() => {
     dirtyVersionRef.current += 1
@@ -57,8 +65,38 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   }, [currentSongId, onWordAdded])
 
   const openWordModal = useCallback((word = '') => {
-    setInitialWord(word)
-    setShowWordModal(true)
+    const requestId = ++wordModalRequestRef.current
+    const trimmed = word.trim()
+    if (!trimmed) {
+      setWordModal({ initialWord: '' })
+      return
+    }
+    // 활용형이면 기본형을 추천받아 모달에 전달, 실패 시 원문 그대로 진행
+    window.api.japanese
+      .recommendLemma(trimmed)
+      .then((rec) => {
+        if (wordModalRequestRef.current !== requestId) return
+        if (rec.suggested) {
+          setWordModal({
+            initialWord: rec.lemma,
+            initialReading: rec.reading || undefined,
+            selectedWord: rec.selected,
+            lemmaSuggested: true
+          })
+        } else {
+          setWordModal({ initialWord: trimmed })
+        }
+      })
+      .catch(() => {
+        if (wordModalRequestRef.current !== requestId) return
+        setWordModal({ initialWord: trimmed })
+      })
+  }, [])
+
+  const closeWordModal = useCallback(() => {
+    // 진행 중인 추천 요청이 닫힌 모달을 다시 열지 않게 무효화
+    wordModalRequestRef.current += 1
+    setWordModal(null)
   }, [])
 
   useEffect(() => {
@@ -207,6 +245,12 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     return () => window.clearTimeout(timerId)
   }, [step, saved, saving, error, title, artist, lines, handleSave])
 
+  const handleExit = useCallback(() => {
+    // 저장 안 된 편집이 있으면 저장을 걸어두고 목록으로 — IPC는 이동 후에도 완료됨
+    if (!saved && title.trim() && lines.length > 0) void handleSave()
+    onExit?.()
+  }, [saved, title, lines, handleSave, onExit])
+
   const handleReset = useCallback(() => {
     setStep('input')
     setTitle('')
@@ -241,7 +285,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
             </div>
           )}
           <SelectionHintLayer
-            active={step === 'translate' && !showWordModal}
+            active={step === 'translate' && !wordModal}
             onAddWord={openWordModal}
           />
           <RetroWindow
@@ -249,6 +293,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
             icon="♪"
             accent="lavender"
             className="editor-translate-window"
+            onClose={handleExit}
           >
             <div className="editor-translate-header">
               <div className="editor-translate-meta">
@@ -306,13 +351,16 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
           </RetroWindow>
 
           <FloatingAddButton onClick={() => openWordModal()} />
-          {showWordModal && (
+          {wordModal && (
             <AddWordModal
               songId={currentSongId}
               songTitle={title || undefined}
-              initialWord={initialWord}
+              initialWord={wordModal.initialWord}
+              initialReading={wordModal.initialReading}
+              selectedWord={wordModal.selectedWord}
+              lemmaSuggested={wordModal.lemmaSuggested}
               onAdd={handleAddWord}
-              onClose={() => setShowWordModal(false)}
+              onClose={closeWordModal}
             />
           )}
           {showApiKeyModal && (

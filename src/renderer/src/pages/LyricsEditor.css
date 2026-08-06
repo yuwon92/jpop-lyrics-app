@@ -160,8 +160,8 @@
 }
 
 .reading-toggle--korean {
-  color: var(--accent-lavender) !important;
-  border-color: var(--accent-lavender) !important;
+  color: var(--accent-lavender-ink) !important;
+  border-color: var(--accent-lavender-ink) !important;
 }
 
 .editor-shortcut-toast {
@@ -188,7 +188,7 @@
   width: 160px;
   padding: 6px 9px;
   border: 1.5px solid var(--border-dark);
-  background: #efeaff;
+  background: var(--win-bg-alt);
   color: var(--text-main);
   box-shadow: 2px 2px 0 var(--border-mid);
   font-size: 12px;

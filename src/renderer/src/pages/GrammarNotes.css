@@ -269,7 +269,7 @@
   transition: color 0.1s;
 }
 
-.grammar-note-card__edit:hover { color: var(--accent-lavender); }
+.grammar-note-card__edit:hover { color: var(--accent-lavender-ink); }
 
 .grammar-note-card__delete {
   background: transparent;
@@ -306,7 +306,7 @@
 
 .grammar-note-card__song {
   font-size: 11px;
-  color: var(--accent-lavender);
+  color: var(--accent-lavender-ink);
   font-weight: 700;
   border-top: 1px dashed var(--bg-secondary);
   padding-top: 4px;

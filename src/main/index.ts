@@ -3,6 +3,7 @@ import { join } from 'path'
 import { getDb, getCorruptBackupPath, flushDb } from './database'
 import { registerIpcHandlers } from './ipc-handlers'
 import { setupKuroshiro, registerKuroshiroHandler } from './kuroshiro-handler'
+import { setupLemmaTokenizer, registerLemmaHandler } from './lemma-handler'
 import { registerAnthropicHandler } from './anthropic-handler'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -60,6 +61,9 @@ app.whenReady().then(async () => {
   }
   registerIpcHandlers()
   registerAnthropicHandler()
+  registerLemmaHandler()
+  // 실패해도 앱 실행을 막지 않는다 — 추천 기능만 비활성화됨
+  void setupLemmaTokenizer()
   await setupKuroshiro()
   registerKuroshiroHandler()
 

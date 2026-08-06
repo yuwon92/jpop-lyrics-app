@@ -41,6 +41,7 @@ export default defineConfig({
           'electron',
           'kuroshiro',
           'kuroshiro-analyzer-kuromoji',
+          'kuromoji',
           'path',
           'fs',
           'os',

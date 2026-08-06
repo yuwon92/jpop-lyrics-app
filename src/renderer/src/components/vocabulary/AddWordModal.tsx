@@ -11,6 +11,9 @@ interface Props {
   initialWord?: string
   initialReading?: string
   initialMeaning?: string
+  /** Ctrl+E로 드래그한 원문 — 기본형 추천 시 initialWord(기본형)와 함께 전달됨 */
+  selectedWord?: string
+  lemmaSuggested?: boolean
   onAdd: (word: string, reading: string, meaning: string) => Promise<void>
   onClose: () => void
 }
@@ -21,6 +24,8 @@ export default function AddWordModal({
   initialWord = '',
   initialReading,
   initialMeaning,
+  selectedWord,
+  lemmaSuggested,
   onAdd,
   onClose
 }: Props): JSX.Element {
@@ -30,24 +35,35 @@ export default function AddWordModal({
   const [reading, setReading] = useState(initialReading ?? '')
   const [meaning, setMeaning] = useState(initialMeaning ?? '')
   const [meaningHint, setMeaningHint] = useState('')
+  const [usingOriginal, setUsingOriginal] = useState(false)
+  // 읽기·뜻 자동 채우기의 기준 단어 — 객체 교체로 재실행을 트리거한다
+  const [autoFill, setAutoFill] = useState<{ word: string }>({ word: initialWord })
   const [loadingReading, setLoadingReading] = useState(false)
   const [loadingMeaning, setLoadingMeaning] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+
+  const showSuggestion =
+    !isEditing && !!lemmaSuggested && !!selectedWord && selectedWord !== initialWord
 
   useEffect(() => {
     setWord(initialWord)
     setReading(initialReading ?? '')
     setMeaning(initialMeaning ?? '')
     setMeaningHint('')
+    setUsingOriginal(false)
+    setAutoFill((prev) => (prev.word === initialWord ? prev : { word: initialWord }))
+  }, [initialWord, initialReading, initialMeaning])
 
+  useEffect(() => {
     if (isEditing) return
-    if (!initialWord || !isJapanese(initialWord)) return
+    const target = autoFill.word
+    if (!target || !isJapanese(target)) return
 
     let cancelled = false
 
     setLoadingReading(true)
-    window.api.convertReadingBulk([initialWord])
+    window.api.convertReadingBulk([target])
       .then(([r]) => { if (!cancelled) setReading((prev) => prev === '' ? (r ?? '') : prev) })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoadingReading(false) })
@@ -55,7 +71,7 @@ export default function AddWordModal({
     window.api.anthropic.hasKey().then((hasKey) => {
       if (!hasKey || cancelled) return
       setLoadingMeaning(true)
-      window.api.anthropic.translateWord(initialWord)
+      window.api.anthropic.translateWord(target)
         .then((r) => {
           if (cancelled) return
           setMeaning((prev) => prev === '' ? r : prev)
@@ -66,7 +82,18 @@ export default function AddWordModal({
     })
 
     return () => { cancelled = true }
-  }, [initialWord, initialReading, initialMeaning])
+  }, [autoFill, isEditing])
+
+  const handleToggleLemma = () => {
+    const toOriginal = !usingOriginal
+    const next = toOriginal ? (selectedWord ?? '') : initialWord
+    setUsingOriginal(toOriginal)
+    setWord(next)
+    setReading(toOriginal ? '' : (initialReading ?? ''))
+    setMeaning('')
+    setMeaningHint('')
+    setAutoFill({ word: next })
+  }
 
   const handleSubmit = async () => {
     if (!word.trim() || !meaning.trim()) return
@@ -100,6 +127,21 @@ export default function AddWordModal({
           <div className="modal-song-tag">
             <span className="modal-song-tag__icon">♪</span>
             <span>{songTitle}</span>
+          </div>
+        )}
+        {showSuggestion && (
+          <div className="modal-lemma-box">
+            <div className="modal-lemma-row">
+              <span className="modal-lemma-label">선택한 형태</span>
+              <span className="modal-lemma-word">{selectedWord}</span>
+            </div>
+            <div className="modal-lemma-row">
+              <span className="modal-lemma-label">추천 기본형</span>
+              <span className="modal-lemma-word modal-lemma-word--lemma">{initialWord}</span>
+              <button type="button" className="modal-lemma-toggle" onClick={handleToggleLemma}>
+                {usingOriginal ? '기본형 추천 사용' : '원문 사용'}
+              </button>
+            </div>
           </div>
         )}
         <PixelInput

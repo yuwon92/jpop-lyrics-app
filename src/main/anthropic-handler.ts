@@ -157,10 +157,17 @@ export function registerAnthropicHandler(): void {
     const apiKey = getStoredApiKey()
     if (!apiKey) throw new Error('NO_API_KEY')
 
+    const model = 'claude-haiku-4-5-20251001'
+    // 원문/기본형 전환이나 같은 단어 재추가 시 API 재호출 없이 캐시 사용
+    // ('' 응답도 유효한 결과이므로 null 체크가 아닌 string 타입으로 판별)
+    const cacheKey = `word::${word.trim()}::${model}`
+    const cached = getAnalysisCache(cacheKey)
+    if (typeof cached === 'string') return cached
+
     const client = new Anthropic({ apiKey })
 
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model,
       max_tokens: 256,
       system: [
         '일본어 단어나 어구를 한국어로 번역해.',
@@ -173,7 +180,9 @@ export function registerAnthropicHandler(): void {
     })
 
     const first = message.content[0]
-    return (first?.type === 'text' ? first.text : '').trim()
+    const result = (first?.type === 'text' ? first.text : '').trim()
+    setAnalysisCache(cacheKey, result)
+    return result
   })
 
   ipcMain.handle(

@@ -287,7 +287,7 @@
 
 .analysis-word-card__pos {
   font-size: 11px;
-  color: var(--accent-lavender);
+  color: var(--accent-lavender-ink);
   font-weight: 700;
 }
 
@@ -316,8 +316,8 @@
 }
 
 .analysis-word-card__save.saved {
-  border-color: var(--accent-lavender);
-  color: var(--accent-lavender);
+  border-color: var(--accent-lavender-ink);
+  color: var(--accent-lavender-ink);
   cursor: default;
 }
 
@@ -376,8 +376,8 @@
 }
 
 .analysis-grammar-card__save.saved {
-  border-color: var(--accent-lavender);
-  color: var(--accent-lavender);
+  border-color: var(--accent-lavender-ink);
+  color: var(--accent-lavender-ink);
   cursor: default;
 }
 

@@ -1,5 +1,52 @@
 /* 공통 모달 셸 스타일은 shared/Modal.css 참조 — 여기는 단어 모달 전용 스타일만 */
 
+.modal-lemma-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-mid);
+  font-size: 12px;
+}
+
+.modal-lemma-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-lemma-label {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.modal-lemma-word {
+  font-family: var(--font-jp);
+}
+
+.modal-lemma-word--lemma {
+  color: var(--accent-lavender-ink);
+  font-weight: 700;
+}
+
+.modal-lemma-toggle {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-mid);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.modal-lemma-toggle:hover {
+  color: var(--accent-lavender-ink);
+  border-color: var(--border-dark);
+}
+
 .modal-meaning-wrap {
   display: flex;
   flex-direction: column;

@@ -40,7 +40,7 @@
   },
   "build": {
     "appId": "com.jpop.lyrics",
-    "productName": "J-Pop Vocab.",
+    "productName": "J-Pop Vocab",
     "directories": {
       "output": "dist"
     },

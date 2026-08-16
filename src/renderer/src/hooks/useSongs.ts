@@ -50,6 +50,7 @@ declare global {
           id?: number
           title: string
           artist: string
+          youtube_url?: string
           lines: LyricLine[]
         }) => Promise<number>
         delete: (id: number) => Promise<void>

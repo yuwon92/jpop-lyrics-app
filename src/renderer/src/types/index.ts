@@ -2,6 +2,7 @@ export interface Song {
   id: number
   title: string
   artist: string
+  youtube_url?: string
   created_at: string
   word_count?: number
 }

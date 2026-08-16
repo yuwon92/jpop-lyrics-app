@@ -1,6 +1,6 @@
 {
   "name": "jpop-lyrics-app",
-  "version": "1.8.4",
+  "version": "1.9.0",
   "description": "J-Pop 가사 번역 & 단어장 앱",
   "main": "./out/main/index.js",
   "scripts": {

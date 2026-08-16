@@ -33,6 +33,7 @@ const api = {
       id?: number
       title: string
       artist: string
+      youtube_url?: string
       lines: unknown[]
     }) => ipcRenderer.invoke('songs:save', payload),
     delete: (id: number) => ipcRenderer.invoke('songs:delete', id),

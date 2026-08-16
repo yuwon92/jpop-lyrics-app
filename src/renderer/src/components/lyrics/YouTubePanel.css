@@ -1,0 +1,104 @@
+.youtube-panel {
+  width: 40%;
+  min-width: 320px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.youtube-panel--hidden {
+  display: none;
+}
+
+/* 파스텔 테마(기본, data-theme 없음)에서만 하늘색 대신 연한 라벤더 헤더 */
+:root:not([data-theme]) .youtube-panel .retro-titlebar.accent-blue {
+  background: #D6C8FF;
+}
+
+.youtube-panel__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.youtube-panel__url {
+  background: var(--win-bg);
+  border: 2px solid var(--border-dark);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: var(--font-kr);
+  color: var(--text-main);
+  outline: none;
+  box-shadow: inset 1px 1px 0 #e0c8d8;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.youtube-panel__url:focus {
+  border-color: var(--accent-blue);
+}
+
+.youtube-panel__url::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.youtube-panel__player {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 2px solid var(--border-dark);
+  background: #000;
+}
+
+.youtube-panel__player iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.youtube-panel__empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 접힌 상태: 얇은 세로 토글 바 */
+.youtube-panel-collapsed {
+  width: 34px;
+  flex-shrink: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border: 2px solid var(--border-dark);
+  background: var(--win-bg);
+  box-shadow: 3px 3px 0 var(--border-dark);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.youtube-panel-collapsed:hover {
+  background: var(--win-bg-alt);
+}
+
+.youtube-panel-collapsed__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.youtube-panel-collapsed__label {
+  writing-mode: vertical-rl;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}

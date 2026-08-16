@@ -6,6 +6,7 @@ export interface Song {
   id: number
   title: string
   artist: string
+  youtube_url?: string
   created_at: string
 }
 
@@ -177,6 +178,7 @@ export function saveSong(payload: {
   id?: number
   title: string
   artist: string
+  youtube_url?: string
   lines: Omit<LyricLine, 'id' | 'song_id'>[]
 }): number {
   const db = getDb()
@@ -185,12 +187,23 @@ export function saveSong(payload: {
     songId = payload.id
     const idx = db.songs.findIndex((s) => s.id === songId)
     if (idx !== -1) {
-      db.songs[idx] = { ...db.songs[idx], title: payload.title, artist: payload.artist }
+      db.songs[idx] = {
+        ...db.songs[idx],
+        title: payload.title,
+        artist: payload.artist,
+        youtube_url: payload.youtube_url
+      }
     }
     db.lyric_lines = db.lyric_lines.filter((l) => l.song_id !== songId)
   } else {
     songId = nextId('songs')
-    db.songs.push({ id: songId, title: payload.title, artist: payload.artist, created_at: now() })
+    db.songs.push({
+      id: songId,
+      title: payload.title,
+      artist: payload.artist,
+      youtube_url: payload.youtube_url,
+      created_at: now()
+    })
   }
   for (const line of payload.lines) {
     db.lyric_lines.push({

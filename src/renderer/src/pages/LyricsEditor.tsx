@@ -3,6 +3,7 @@ import RetroWindow from '../components/layout/RetroWindow'
 import LyricsRow from '../components/lyrics/LyricsRow'
 import LyricsInputStep from '../components/lyrics/LyricsInputStep'
 import SelectionHintLayer from '../components/lyrics/SelectionHintLayer'
+import YouTubePanel from '../components/lyrics/YouTubePanel'
 import PixelButton from '../components/shared/PixelButton'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
@@ -42,6 +43,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
   const [title, setTitle] = useState(editingSong?.song.title ?? '')
   const [artist, setArtist] = useState(editingSong?.song.artist ?? '')
+  const [youtubeUrl, setYoutubeUrl] = useState(editingSong?.song.youtube_url ?? '')
   const [rawLyrics, setRawLyrics] = useState('')
   const [lines, setLines] = useState<LyricLine[]>(editingSong?.lines ?? [])
   const [loading, setLoading] = useState(false)
@@ -191,6 +193,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
         id: existingId,
         title: title.trim() || '제목 없음',
         artist: artist.trim(),
+        youtube_url: youtubeUrl.trim() || undefined,
         lines: newLines
       })
       setCurrentSongId(id)
@@ -206,7 +209,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     } finally {
       setLoading(false)
     }
-  }, [rawLyrics, title, artist, currentSongId, editingSong, setCurrentSongId, onSaved])
+  }, [rawLyrics, title, artist, youtubeUrl, currentSongId, editingSong, setCurrentSongId, onSaved])
 
   const handleLineChange = useCallback((index: number, field: 'original' | 'reading' | 'reading_ko' | 'translation', value: string) => {
     setLines((prev) =>
@@ -225,6 +228,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
         id: existingId,
         title: title.trim(),
         artist: artist.trim(),
+        youtube_url: youtubeUrl.trim() || undefined,
         lines
       })
       setCurrentSongId(id)
@@ -237,7 +241,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     } finally {
       setSaving(false)
     }
-  }, [title, artist, lines, editingSong, currentSongId, onSaved, setCurrentSongId])
+  }, [title, artist, youtubeUrl, lines, editingSong, currentSongId, onSaved, setCurrentSongId])
 
   useEffect(() => {
     // error가 있으면 자동 저장을 멈춘다 — 실패 시 1초마다 무한 재시도 방지
@@ -261,6 +265,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
     setStep('input')
     setTitle('')
     setArtist('')
+    setYoutubeUrl('')
     setRawLyrics('')
     setLines([])
     setSaved(false)
@@ -294,71 +299,77 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
             active={!hidden && step === 'translate' && !wordModal}
             onAddWord={openWordModal}
           />
-          <RetroWindow
-            title={`${title}${artist ? ` — ${artist}` : ''}`}
-            icon="♪"
-            accent="lavender"
-            className="editor-translate-window"
-            onClose={handleExit}
-          >
-            <div className="editor-translate-header">
-              <div className="editor-translate-meta">
-                <input
-                  className="editor-meta-input editor-meta-input--title jp-text"
-                  value={title}
-                  onChange={(e) => { setTitle(e.target.value); markUnsaved() }}
-                  placeholder="노래 제목"
-                  aria-label="노래 제목"
-                />
-                <input
-                  className="editor-meta-input editor-meta-input--artist"
-                  value={artist}
-                  onChange={(e) => { setArtist(e.target.value); markUnsaved() }}
-                  placeholder="아티스트"
-                  aria-label="아티스트"
-                />
-              </div>
-              <div className="editor-translate-actions">
-                <PixelButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleToggleReading}
-                  disabled={convertingKorean}
-                  className={readingMode === 'korean' ? 'reading-toggle--korean' : ''}
-                >
-                  {convertingKorean ? '변환 중...' : readingMode === 'hiragana' ? 'ひ → 가' : '가 → ひ'}
-                </PixelButton>
-                <PixelButton variant="ghost" size="sm" onClick={handleReset}>
-                  ← 새로 입력
-                </PixelButton>
-                <PixelButton
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? '저장 중...' : saved ? '✓ 저장됨' : '💾 저장'}
-                </PixelButton>
-              </div>
-            </div>
-            {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-            <div
-              className="editor-translate-lines"
-              ref={linesScroll.ref}
-              onScroll={linesScroll.onScroll}
+          <div className="editor-translate-columns">
+            <RetroWindow
+              title={`${title}${artist ? ` — ${artist}` : ''}`}
+              icon="♪"
+              accent="lavender"
+              className="editor-translate-window"
+              onClose={handleExit}
             >
-              {lines.map((line) => (
-                <LyricsRow
-                  key={line.line_index}
-                  line={line}
-                  readingMode={readingMode}
-                  onChange={handleLineChange}
-                  onWordAdded={onWordAdded}
-                  onNoteAdded={onNoteAdded}
-                />
-              ))}
-            </div>
-          </RetroWindow>
+              <div className="editor-translate-header">
+                <div className="editor-translate-meta">
+                  <input
+                    className="editor-meta-input editor-meta-input--title jp-text"
+                    value={title}
+                    onChange={(e) => { setTitle(e.target.value); markUnsaved() }}
+                    placeholder="노래 제목"
+                    aria-label="노래 제목"
+                  />
+                  <input
+                    className="editor-meta-input editor-meta-input--artist"
+                    value={artist}
+                    onChange={(e) => { setArtist(e.target.value); markUnsaved() }}
+                    placeholder="아티스트"
+                    aria-label="아티스트"
+                  />
+                </div>
+                <div className="editor-translate-actions">
+                  <PixelButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleToggleReading}
+                    disabled={convertingKorean}
+                    className={readingMode === 'korean' ? 'reading-toggle--korean' : ''}
+                  >
+                    {convertingKorean ? '변환 중...' : readingMode === 'hiragana' ? 'ひ → 가' : '가 → ひ'}
+                  </PixelButton>
+                  <PixelButton variant="ghost" size="sm" onClick={handleReset}>
+                    ← 새로 입력
+                  </PixelButton>
+                  <PixelButton
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? '저장 중...' : saved ? '✓ 저장됨' : '💾 저장'}
+                  </PixelButton>
+                </div>
+              </div>
+              {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+              <div
+                className="editor-translate-lines"
+                ref={linesScroll.ref}
+                onScroll={linesScroll.onScroll}
+              >
+                {lines.map((line) => (
+                  <LyricsRow
+                    key={line.line_index}
+                    line={line}
+                    readingMode={readingMode}
+                    onChange={handleLineChange}
+                    onWordAdded={onWordAdded}
+                    onNoteAdded={onNoteAdded}
+                  />
+                ))}
+              </div>
+            </RetroWindow>
+            <YouTubePanel
+              url={youtubeUrl}
+              onUrlChange={(u) => { setYoutubeUrl(u); markUnsaved() }}
+            />
+          </div>
 
           <FloatingAddButton onClick={() => openWordModal()} />
           {wordModal && (

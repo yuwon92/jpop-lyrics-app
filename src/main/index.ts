@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, dialog } from 'electron'
+import { app, shell, BrowserWindow, dialog, session } from 'electron'
 import { join } from 'path'
 import { getDb, getCorruptBackupPath, flushDb } from './database'
 import { registerIpcHandlers } from './ipc-handlers'
@@ -59,6 +59,16 @@ app.whenReady().then(async () => {
         `복사하면 마지막 정상 시점으로 복구할 수 있습니다.`
     })
   }
+  // 프로덕션 렌더러는 file:// 로 로드되어 Referer 헤더가 없고,
+  // 유튜브는 Referer 없는 임베드를 오류 153으로 거부하므로 직접 채워 준다
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: ['https://www.youtube.com/*', 'https://www.youtube-nocookie.com/*'] },
+    (details, callback) => {
+      details.requestHeaders['Referer'] = 'https://www.youtube-nocookie.com/'
+      callback({ requestHeaders: details.requestHeaders })
+    }
+  )
+
   registerIpcHandlers()
   registerAnthropicHandler()
   registerLemmaHandler()

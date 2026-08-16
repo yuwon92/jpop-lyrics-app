@@ -12,6 +12,7 @@ const PROD_CSP = [
   "font-src 'self' data:",
   "img-src 'self' data:",
   "connect-src 'self'",
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'"

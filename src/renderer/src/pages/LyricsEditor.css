@@ -79,8 +79,17 @@
   position: relative;
 }
 
+.editor-translate-columns {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+  min-height: 0;
+}
+
 .editor-translate-window {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;

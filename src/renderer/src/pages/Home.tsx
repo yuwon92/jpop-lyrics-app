@@ -2,6 +2,7 @@ import RetroWindow from '../components/layout/RetroWindow'
 import PixelButton from '../components/shared/PixelButton'
 import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song } from '../types'
+import { useScrollRestore } from '../hooks/useScrollRestore'
 import './Home.css'
 
 interface Props {
@@ -12,11 +13,15 @@ interface Props {
   onNewSong: () => void
   onEditSong: (song: Song) => void
   onDeleteSong: (id: number) => void
+  /** 다른 탭이 열려 있는 동안 마운트를 유지한 채 숨긴다 */
+  hidden?: boolean
 }
 
-export default function Home({ songs, loading, error, onRetry, onNewSong, onEditSong, onDeleteSong }: Props): JSX.Element {
+export default function Home({ songs, loading, error, onRetry, onNewSong, onEditSong, onDeleteSong, hidden = false }: Props): JSX.Element {
+  const bodyScroll = useScrollRestore<HTMLDivElement>(hidden || loading)
+
   return (
-    <div className="home-page">
+    <div className="home-page" style={hidden ? { display: 'none' } : undefined}>
       <RetroWindow title="노래 목록" icon="♫" accent="pink" className="home-window">
         <div className="home-header">
           <p className="home-subtitle">번역한 J-Pop 가사를 모아보세요 ♡</p>
@@ -25,7 +30,7 @@ export default function Home({ songs, loading, error, onRetry, onNewSong, onEdit
           </PixelButton>
         </div>
 
-        <div className="home-body">
+        <div className="home-body" ref={bodyScroll.ref} onScroll={bodyScroll.onScroll}>
           {error && <ErrorBanner message={error} onRetry={onRetry} />}
           {loading ? (
             <div className="home-empty">불러오는 중...</div>

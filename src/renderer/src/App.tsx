@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import MenuBar from './components/layout/MenuBar'
 import { useTheme } from './hooks/useTheme'
 import Home from './pages/Home'
@@ -18,6 +18,9 @@ export default function App(): JSX.Element {
   const [showModal, setShowModal] = useState(false)
   const [currentSongId, setCurrentSongId] = useState<number | null>(null)
   const [editingSong, setEditingSong] = useState<{ song: Song; lines: LyricLine[] } | null>(null)
+  // 새 번역/편집을 시작할 때만 증가 — key로 쓰여 LyricsEditor를 초기화한다.
+  // 탭 이동만으로는 바뀌지 않으므로 작업 중이던 내용이 유지된다.
+  const [editorSession, setEditorSession] = useState(0)
 
   const { theme, setTheme } = useTheme()
   const { songs, loading, error, fetchAll, deleteSong } = useSongs()
@@ -26,16 +29,26 @@ export default function App(): JSX.Element {
     fetchAll()
   }, [fetchAll])
 
+  // 설정을 열기 직전의 탭 — 설정 창 [x]로 닫을 때 돌아갈 곳
+  const pageBeforeSettingsRef = useRef<Page>('home')
+
   const handleNavigate = useCallback((p: Page) => {
-    if (p === 'editor' && page !== 'editor') {
-      setEditingSong(null)
-    }
-    setPage(p)
-  }, [page])
+    setPage((current) => {
+      if (p === 'settings' && current !== 'settings') {
+        pageBeforeSettingsRef.current = current
+      }
+      return p
+    })
+  }, [])
+
+  const handleCloseSettings = useCallback(() => {
+    setPage(pageBeforeSettingsRef.current)
+  }, [])
 
   const handleNewSong = useCallback(() => {
     setEditingSong(null)
     setCurrentSongId(null)
+    setEditorSession((s) => s + 1)
     setPage('editor')
   }, [])
 
@@ -43,6 +56,7 @@ export default function App(): JSX.Element {
     const data = await window.api.songs.getOne(song.id)
     setEditingSong(data)
     setCurrentSongId(song.id)
+    setEditorSession((s) => s + 1)
     setPage('editor')
   }, [])
 
@@ -60,6 +74,8 @@ export default function App(): JSX.Element {
       if (currentSongId === id) {
         setCurrentSongId(null)
         setEditingSong(null)
+        // 마운트된 에디터가 삭제된 노래를 자동 저장으로 되살리지 않게 초기화
+        setEditorSession((s) => s + 1)
       }
     },
     [deleteSong, currentSongId]
@@ -79,30 +95,32 @@ export default function App(): JSX.Element {
     <div className="app">
       <MenuBar currentPage={page} onNavigate={handleNavigate} />
       <main className="app__main">
-        {page === 'home' && (
-          <Home
-            songs={songs}
-            loading={loading}
-            error={error}
-            onRetry={fetchAll}
-            onNewSong={handleNewSong}
-            onEditSong={handleEditSong}
-            onDeleteSong={handleDeleteSong}
-          />
+        {/* 탭을 오가도 각 페이지의 작업 상태·스크롤이 유지되도록 항상 마운트하고 숨김 처리 */}
+        <Home
+          hidden={page !== 'home'}
+          songs={songs}
+          loading={loading}
+          error={error}
+          onRetry={fetchAll}
+          onNewSong={handleNewSong}
+          onEditSong={handleEditSong}
+          onDeleteSong={handleDeleteSong}
+        />
+        <LyricsEditor
+          key={editorSession}
+          hidden={page !== 'editor'}
+          editingSong={editingSong}
+          onSaved={handleSaved}
+          currentSongId={currentSongId}
+          setCurrentSongId={setCurrentSongId}
+          onWordAdded={fetchAll}
+          onExit={() => handleNavigate('home')}
+        />
+        <Vocabulary hidden={page !== 'vocabulary'} songs={songs} onWordAdded={fetchAll} />
+        <GrammarNotes hidden={page !== 'grammar-notes'} songs={songs} />
+        {page === 'settings' && (
+          <Settings theme={theme} onChangeTheme={setTheme} onClose={handleCloseSettings} />
         )}
-        {page === 'editor' && (
-          <LyricsEditor
-            editingSong={editingSong}
-            onSaved={handleSaved}
-            currentSongId={currentSongId}
-            setCurrentSongId={setCurrentSongId}
-            onWordAdded={fetchAll}
-            onExit={() => handleNavigate('home')}
-          />
-        )}
-        {page === 'vocabulary' && <Vocabulary songs={songs} onWordAdded={fetchAll} />}
-        {page === 'grammar-notes' && <GrammarNotes songs={songs} />}
-        {page === 'settings' && <Settings theme={theme} onChangeTheme={setTheme} />}
       </main>
 
       {page === 'home' && (

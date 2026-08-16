@@ -125,32 +125,53 @@ export function registerAnthropicHandler(): void {
     const apiKey = getStoredApiKey()
     if (!apiKey) throw new Error('Anthropic API 키가 설정되지 않았습니다.')
 
-    const client = new Anthropic({ apiKey })
+    // renderer의 lib/japanese.ts와 같은 범위 — 히라가나~한자·전각/반각 가타카나
+    const JAPANESE_RE = /[ぁ-鿿＀-ﾟ]/
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2048,
-      system: [
-        '아래 일본어 가사를 한국어 발음 표기(한글)로 변환해.',
-        '규칙:',
-        '- 줄 수를 입력과 동일하게 유지해 (빈 줄 추가 금지)',
-        '- 각 줄을 한글 발음으로만 출력 (설명, 번호, 기호 없음)',
-        '- 일본어 원문이나 로마자는 절대 출력하지 마',
-        '',
-        '예시:',
-        '입력: 夜に駆ける',
-        '출력: 요루니 카케루',
-        '',
-        '입력: ただ過ぎる ノートの余白に書く',
-        '출력: 다다 스기루 노-토노 요하쿠니 카쿠'
-      ].join('\n'),
-      messages: [{ role: 'user', content: lines.join('\n') }]
-    })
+    // 일본어가 없는 줄(영어 가사 등)은 API에 보내지 않는다.
+    // 모델이 변환할 게 없는 줄을 건너뛰면 이후 줄의 발음이 한 칸씩 밀리기 때문.
+    // 이런 줄은 원문을 그대로 발음란에 쓴다 (히라가나 모드와 동일한 동작).
+    const japaneseLines = lines
+      .map((line, index) => ({ line, index }))
+      .filter(({ line }) => JAPANESE_RE.test(line))
+    const results = lines.map((line) => (JAPANESE_RE.test(line) ? '' : line))
 
-    const first = message.content[0]
-    const text = first?.type === 'text' ? first.text : ''
-    const result = text.trim().split('\n').filter((l) => l.trim() !== '')
-    return lines.map((_, i) => result[i] ?? '')
+    if (japaneseLines.length > 0) {
+      const client = new Anthropic({ apiKey })
+
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
+        system: [
+          '아래 일본어 가사를 한국어 발음 표기(한글)로 변환해.',
+          '규칙:',
+          '- 줄 수를 입력과 동일하게 유지해 (빈 줄 추가 금지)',
+          '- 각 줄을 발음 표기만 출력 (설명, 번호, 기호 없음)',
+          '- 일본어 부분만 한글 발음으로 바꾸고, 영어 등 일본어가 아닌 부분은 변환하지 말고 그대로 둬',
+          '- 일본어를 원문(가나·한자)이나 로마자로 표기하지 마',
+          '',
+          '예시:',
+          '입력: 夜に駆ける',
+          '출력: 요루니 카케루',
+          '',
+          '입력: ただ過ぎる ノートの余白に書く',
+          '출력: 다다 스기루 노-토노 요하쿠니 카쿠',
+          '',
+          '입력: Stay with me 帰さないよ',
+          '출력: Stay with me 카에사나이요'
+        ].join('\n'),
+        messages: [{ role: 'user', content: japaneseLines.map(({ line }) => line).join('\n') }]
+      })
+
+      const first = message.content[0]
+      const text = first?.type === 'text' ? first.text : ''
+      const converted = text.trim().split('\n').filter((l) => l.trim() !== '')
+      japaneseLines.forEach(({ index }, k) => {
+        results[index] = converted[k] ?? ''
+      })
+    }
+
+    return results
   })
 
   ipcMain.handle('anthropic:translate-word', async (_e, word: string) => {

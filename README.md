@@ -6,6 +6,37 @@
 
 ---
 
+## 설치 방법
+
+[Releases 페이지](https://github.com/yuwon92/jpop-lyrics-app/releases/latest)에서 운영체제에 맞는 파일을 다운로드하세요.
+
+### Windows
+
+1. `J-Pop Vocab Setup x.x.x.exe` 다운로드 후 실행
+2. "Windows의 PC 보호" 파란 경고 창이 뜨면 **추가 정보 → 실행** 클릭
+   - 개인 개발 앱이라 서명 인증서가 없어서 뜨는 경고입니다
+3. 설치가 끝나면 바탕화면/시작 메뉴의 **J-Pop Vocab**으로 실행
+
+### Mac
+
+1. `J-Pop Vocab-x.x.x.dmg` 다운로드 후 열기
+2. 앱 아이콘을 **응용 프로그램(Applications)** 폴더로 드래그
+3. 터미널(Terminal)을 열고 아래 명령어 실행 — 다운로드한 앱에 대한 macOS 차단(격리 속성)을 해제합니다:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/J-Pop Vocab.app"
+   ```
+
+4. 응용 프로그램 폴더에서 **J-Pop Vocab** 실행
+
+> 실행 시 "예기치 않게 종료되었습니다" 메시지가 뜨면 아래 명령어로 서명을 붙인 뒤 다시 실행하세요:
+>
+> ```bash
+> codesign --force --deep --sign - "/Applications/J-Pop Vocab.app"
+> ```
+
+---
+
 ## 주요 기능
 
 - **히라가나 자동 변환** — 일본어 가사를 붙여넣으면 한자 → 히라가나 자동 변환

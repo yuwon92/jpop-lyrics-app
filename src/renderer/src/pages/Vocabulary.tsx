@@ -8,11 +8,14 @@ import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song, VocabWord } from '../types'
 import { useVocabulary } from '../hooks/useVocabulary'
 import { addVocabWord } from '../lib/vocab'
+import { useScrollRestore } from '../hooks/useScrollRestore'
 import './Vocabulary.css'
 
 interface Props {
   songs: Song[]
   onWordAdded?: () => void
+  /** 다른 탭이 열려 있는 동안 마운트를 유지한 채 숨긴다 */
+  hidden?: boolean
 }
 
 type ViewMode = 'all' | 'by-song'
@@ -26,7 +29,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
+export default function Vocabulary({ songs, onWordAdded, hidden = false }: Props): JSX.Element {
   const { words, loading, error, fetchAll, fetchBySong, deleteWord, toggleFavorite } = useVocabulary()
 
   const [viewMode, setViewMode] = useState<ViewMode>('all')
@@ -39,7 +42,9 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
   const [editingWord, setEditingWord] = useState<VocabWord | null>(null)
 
   // Fetch words based on view mode + selected song
+  // 탭이 보일 때마다 새로고침 — 숨겨진 동안 에디터에서 추가된 단어를 반영
   useEffect(() => {
+    if (hidden) return
     if (viewMode === 'all') {
       fetchAll()
     } else if (selectedSongId != null) {
@@ -47,7 +52,9 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
     } else {
       fetchAll()
     }
-  }, [viewMode, selectedSongId, fetchAll, fetchBySong])
+  }, [hidden, viewMode, selectedSongId, fetchAll, fetchBySong])
+
+  const bodyScroll = useScrollRestore<HTMLDivElement>(hidden || loading)
 
   // Re-shuffle when words change (if shuffle is on)
   useEffect(() => {
@@ -108,7 +115,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
   const isEmpty = displayWords.length === 0 && !loading
 
   return (
-    <div className="vocabulary-page">
+    <div className="vocabulary-page" style={hidden ? { display: 'none' } : undefined}>
       <RetroWindow title="단어장" icon="★" accent="lavender" className="vocab-window">
         {/* Top toggle bar */}
         <div className="vocab-topbar">
@@ -157,7 +164,7 @@ export default function Vocabulary({ songs, onWordAdded }: Props): JSX.Element {
             </div>
           )}
 
-          <div className="vocab-body">
+          <div className="vocab-body" ref={bodyScroll.ref} onScroll={bodyScroll.onScroll}>
             {error && <ErrorBanner message={error} onRetry={refetchWords} />}
             {loading ? (
               <div className="vocab-empty">불러오는 중...</div>

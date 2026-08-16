@@ -8,6 +8,7 @@ import './Settings.css'
 interface Props {
   theme: Theme
   onChangeTheme: (t: Theme) => void
+  onClose?: () => void
 }
 
 const THEMES: { id: Theme; label: string; desc: string; swatches: string[] }[] = [
@@ -31,7 +32,7 @@ const THEMES: { id: Theme; label: string; desc: string; swatches: string[] }[] =
   }
 ]
 
-export default function Settings({ theme, onChangeTheme }: Props): JSX.Element {
+export default function Settings({ theme, onChangeTheme, onClose }: Props): JSX.Element {
   const [hasKey, setHasKey] = useState<boolean | null>(null)
   const [showKeyModal, setShowKeyModal] = useState(false)
   const [keyError, setKeyError] = useState<string | null>(null)
@@ -69,7 +70,7 @@ export default function Settings({ theme, onChangeTheme }: Props): JSX.Element {
 
   return (
     <div className="settings-page">
-      <RetroWindow title="설정" icon="⚙" accent="lavender" className="settings-window">
+      <RetroWindow title="설정" icon="⚙" accent="lavender" className="settings-window" onClose={onClose}>
         <div className="settings-body">
           <div className="settings-section">
             <div className="settings-section__title">컬러 테마</div>

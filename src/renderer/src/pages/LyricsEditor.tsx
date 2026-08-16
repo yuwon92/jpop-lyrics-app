@@ -10,6 +10,8 @@ import ApiKeyModal from '../components/lyrics/ApiKeyModal'
 import ErrorBanner from '../components/shared/ErrorBanner'
 import { LyricLine, Song } from '../types'
 import { addVocabWord } from '../lib/vocab'
+import { isJapanese } from '../lib/japanese'
+import { useScrollRestore } from '../hooks/useScrollRestore'
 import './LyricsEditor.css'
 
 interface Props {
@@ -20,6 +22,8 @@ interface Props {
   onWordAdded?: () => void
   onNoteAdded?: () => void
   onExit?: () => void
+  /** 다른 탭이 열려 있는 동안 마운트를 유지한 채 숨긴다 */
+  hidden?: boolean
 }
 
 type Step = 'input' | 'translate'
@@ -34,7 +38,7 @@ type WordModalState = {
 
 const WORD_SHORTCUT_TIP_KEY = 'jpop-lyrics-word-shortcut-tip-seen'
 
-export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded, onExit }: Props): JSX.Element {
+export default function LyricsEditor({ editingSong, onSaved, currentSongId, setCurrentSongId, onWordAdded, onNoteAdded, onExit, hidden = false }: Props): JSX.Element {
   const [step, setStep] = useState<Step>(editingSong ? 'translate' : 'input')
   const [title, setTitle] = useState(editingSong?.song.title ?? '')
   const [artist, setArtist] = useState(editingSong?.song.artist ?? '')
@@ -51,6 +55,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   const [error, setError] = useState<string | null>(null)
   const dirtyVersionRef = useRef(0)
   const wordModalRequestRef = useRef(0)
+  const linesScroll = useScrollRestore<HTMLDivElement>(hidden)
 
   const markUnsaved = useCallback(() => {
     dirtyVersionRef.current += 1
@@ -141,8 +146,9 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
       return
     }
     // reading_ko가 실제 한글 문자를 포함할 때만 캐시 사용
+    // (영어 등 일본어가 없는 줄은 원문이 그대로 들어가므로 한글 검사에서 제외)
     const hasValidKorean = (text: string | undefined) => !!text && /[가-힣ᄀ-ᇿ㄰-㆏]/.test(text)
-    if (lines.length > 0 && lines.every((l) => hasValidKorean(l.reading_ko))) {
+    if (lines.length > 0 && lines.every((l) => !isJapanese(l.original) || hasValidKorean(l.reading_ko))) {
       setReadingMode('korean')
       return
     }
@@ -263,7 +269,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
   }, [])
 
   return (
-    <div className="lyrics-editor">
+    <div className="lyrics-editor" style={hidden ? { display: 'none' } : undefined}>
       {step === 'input' ? (
         <LyricsInputStep
           title={title}
@@ -285,7 +291,7 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
             </div>
           )}
           <SelectionHintLayer
-            active={step === 'translate' && !wordModal}
+            active={!hidden && step === 'translate' && !wordModal}
             onAddWord={openWordModal}
           />
           <RetroWindow
@@ -336,7 +342,11 @@ export default function LyricsEditor({ editingSong, onSaved, currentSongId, setC
               </div>
             </div>
             {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-            <div className="editor-translate-lines">
+            <div
+              className="editor-translate-lines"
+              ref={linesScroll.ref}
+              onScroll={linesScroll.onScroll}
+            >
               {lines.map((line) => (
                 <LyricsRow
                   key={line.line_index}

@@ -4,15 +4,18 @@ import AddNoteModal from '../components/grammar/AddNoteModal'
 import ErrorBanner from '../components/shared/ErrorBanner'
 import { Song, GrammarNote } from '../types'
 import { useGrammarNotes } from '../hooks/useGrammarNotes'
+import { useScrollRestore } from '../hooks/useScrollRestore'
 import './GrammarNotes.css'
 
 interface Props {
   songs: Song[]
+  /** 다른 탭이 열려 있는 동안 마운트를 유지한 채 숨긴다 */
+  hidden?: boolean
 }
 
 type ViewMode = 'all' | 'by-song'
 
-export default function GrammarNotes({ songs }: Props): JSX.Element {
+export default function GrammarNotes({ songs, hidden = false }: Props): JSX.Element {
   const { notes, loading, error, fetchAll, deleteNote, toggleFavorite } = useGrammarNotes()
 
   const [viewMode, setViewMode] = useState<ViewMode>('all')
@@ -21,9 +24,12 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingNote, setEditingNote] = useState<GrammarNote | null>(null)
 
+  // 탭이 보일 때마다 새로고침 — 숨겨진 동안 에디터에서 추가된 노트를 반영
   useEffect(() => {
-    fetchAll()
-  }, [fetchAll])
+    if (!hidden) fetchAll()
+  }, [hidden, fetchAll])
+
+  const bodyScroll = useScrollRestore<HTMLDivElement>(hidden || loading)
 
   const refetch = useCallback(() => {
     fetchAll()
@@ -84,7 +90,7 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
   const isEmpty = displayNotes.length === 0 && !loading
 
   return (
-    <div className="grammar-notes-page">
+    <div className="grammar-notes-page" style={hidden ? { display: 'none' } : undefined}>
       <RetroWindow title="문법 노트" icon="✦" accent="lavender" className="grammar-notes-window">
         <div className="grammar-notes-topbar">
           <div className="grammar-notes-mode-toggle">
@@ -132,7 +138,7 @@ export default function GrammarNotes({ songs }: Props): JSX.Element {
             </div>
           )}
 
-          <div className="grammar-notes-body">
+          <div className="grammar-notes-body" ref={bodyScroll.ref} onScroll={bodyScroll.onScroll}>
             {error && <ErrorBanner message={error} onRetry={refetch} />}
             {loading ? (
               <div className="grammar-notes-empty">불러오는 중...</div>

@@ -184,6 +184,11 @@
   color: var(--text-on-accent);
 }
 
+.flashcard-speak-btn.speaking {
+  color: var(--accent-lavender-ink);
+  animation: speak-pulse 0.9s ease-in-out infinite;
+}
+
 .flashcard-empty {
   padding: 48px;
   text-align: center;

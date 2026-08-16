@@ -1,0 +1,35 @@
+.speak-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+  transition: color 0.1s;
+}
+
+.speak-btn:hover:not(:disabled) {
+  color: var(--accent-lavender-ink);
+}
+
+.speak-btn.speaking {
+  color: var(--accent-lavender-ink);
+  animation: speak-pulse 0.9s ease-in-out infinite;
+}
+
+.speak-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@keyframes speak-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}

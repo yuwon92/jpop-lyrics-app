@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import Modal from '../shared/Modal'
 import { VocabWord } from '../../types'
+import { useSpeech } from '../../hooks/useSpeech'
+import { stopSpeaking, TTS_UNAVAILABLE_HINT } from '../../lib/tts'
 import './FlashcardModal.css'
 
 interface Props {
@@ -18,6 +20,7 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
 
   const goPrev = useCallback(() => {
     if (currentIndex > 0) {
+      stopSpeaking()
       setCurrentIndex((i) => i - 1)
       setIsFlipped(false)
     }
@@ -25,6 +28,7 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
 
   const goNext = useCallback(() => {
     if (currentIndex < total - 1) {
+      stopSpeaking()
       setCurrentIndex((i) => i + 1)
       setIsFlipped(false)
     }
@@ -32,15 +36,25 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
 
   const flip = useCallback(() => setIsFlipped((f) => !f), [])
 
+  const { speak, speaking, available } = useSpeech(
+    current ? current.reading || current.word : ''
+  )
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') goPrev()
       else if (e.key === 'ArrowRight') goNext()
       else if (e.key === ' ') { e.preventDefault(); flip() }
+      else if (e.key === 's' || e.key === 'S') {
+        if (!e.repeat) { e.preventDefault(); speak() }
+      }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [goPrev, goNext, flip])
+  }, [goPrev, goNext, flip, speak])
+
+  // 모달을 닫을 때 재생 중인 발음도 함께 멈춘다
+  useEffect(() => () => stopSpeaking(), [])
 
   if (total === 0) {
     return (
@@ -90,6 +104,18 @@ export default function FlashcardModal({ words, onToggleFavorite, onClose }: Pro
           disabled={currentIndex === 0}
         >
           ← 이전
+        </button>
+        <button
+          className={`flashcard-nav-btn flashcard-speak-btn${speaking ? ' speaking' : ''}`}
+          onClick={() => {
+            if (speaking) stopSpeaking()
+            else speak()
+          }}
+          disabled={!available}
+          title={available ? '발음 듣기 (S)' : TTS_UNAVAILABLE_HINT}
+          aria-label={`'${current.word}' 발음 듣기`}
+        >
+          ♪ 발음
         </button>
         <button
           className={`flashcard-fav-btn ${current.favorited ? 'favorited' : ''}`}

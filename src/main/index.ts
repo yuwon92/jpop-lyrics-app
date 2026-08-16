@@ -5,6 +5,7 @@ import { registerIpcHandlers } from './ipc-handlers'
 import { setupKuroshiro, registerKuroshiroHandler } from './kuroshiro-handler'
 import { setupLemmaTokenizer, registerLemmaHandler } from './lemma-handler'
 import { registerAnthropicHandler } from './anthropic-handler'
+import { setupAutoUpdater } from './updater'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -78,6 +79,8 @@ app.whenReady().then(async () => {
   registerKuroshiroHandler()
 
   createWindow()
+
+  setupAutoUpdater()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

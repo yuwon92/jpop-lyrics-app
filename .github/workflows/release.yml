@@ -14,7 +14,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact: dist/*.exe
+            # latest.yml과 .blockmap은 electron-updater 자동 업데이트 확인·차등 다운로드에 필요
+            artifact: |
+              dist/*.exe
+              dist/*.blockmap
+              dist/latest.yml
           - os: macos-latest
             artifact: dist/*.dmg
 
@@ -37,7 +41,9 @@ jobs:
         run: npm test
 
       - name: Build
-        run: npm run package
+        # publish 설정이 있으면 태그 빌드에서 electron-builder가 직접 릴리즈를 올리려 하므로
+        # never로 막고, 업로드는 아래 softprops 스텝이 일관되게 담당한다
+        run: npm run package -- --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

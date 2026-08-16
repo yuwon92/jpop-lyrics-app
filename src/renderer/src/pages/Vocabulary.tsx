@@ -5,6 +5,7 @@ import FlashcardModal from '../components/vocabulary/FlashcardModal'
 import FloatingAddButton from '../components/vocabulary/FloatingAddButton'
 import AddWordModal from '../components/vocabulary/AddWordModal'
 import ErrorBanner from '../components/shared/ErrorBanner'
+import SpeakButton from '../components/shared/SpeakButton'
 import { Song, VocabWord } from '../types'
 import { useVocabulary } from '../hooks/useVocabulary'
 import { addVocabWord } from '../lib/vocab'
@@ -252,6 +253,7 @@ function WordCard({
       <div className="word-card__header">
         <span className="word-card__word jp-text">{word.word}</span>
         <div className="word-card__actions">
+          <SpeakButton text={word.reading || word.word} label={word.word} />
           <button
             className={`word-card__fav ${word.favorited ? 'favorited' : ''}`}
             onClick={() => onToggleFavorite(word.id)}

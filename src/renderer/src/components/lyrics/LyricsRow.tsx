@@ -2,6 +2,7 @@ import { memo, useState, useEffect, useRef } from 'react'
 import { LyricLine, TranslateResult, GrammarResult, GrammarWord } from '../../types'
 import ApiKeyModal from './ApiKeyModal'
 import PixelButton from '../shared/PixelButton'
+import SpeakButton from '../shared/SpeakButton'
 import { addVocabWord } from '../../lib/vocab'
 import './LyricsRow.css'
 
@@ -208,15 +209,18 @@ function LyricsRow({ line, readingMode, onChange, onWordAdded, onNoteAdded }: Pr
                         <span className="analysis-word-card__meaning">{w.meaning}</span>
                         <div className="analysis-word-card__footer">
                           <span className="analysis-word-card__pos">{w.pos}</span>
-                          <button
-                            className={`analysis-word-card__save${savedWords.has(i) ? ' saved' : ''}`}
-                            onClick={() => handleSaveWord(w, i)}
-                            disabled={savedWords.has(i)}
-                            title="단어장에 추가"
-                            aria-label={`'${w.word}' 단어장에 추가`}
-                          >
-                            {savedWords.has(i) ? '✓' : '+'}
-                          </button>
+                          <div className="analysis-word-card__footer-actions">
+                            <SpeakButton text={w.reading || w.word} label={w.word} />
+                            <button
+                              className={`analysis-word-card__save${savedWords.has(i) ? ' saved' : ''}`}
+                              onClick={() => handleSaveWord(w, i)}
+                              disabled={savedWords.has(i)}
+                              title="단어장에 추가"
+                              aria-label={`'${w.word}' 단어장에 추가`}
+                            >
+                              {savedWords.has(i) ? '✓' : '+'}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
